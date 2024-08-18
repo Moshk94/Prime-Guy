@@ -1,6 +1,4 @@
-import { getRandomInt } from "./helperFunctions";
-
-let ctx  = document.getElementById('canvas').getContext("2d");
+const ctx  = document.getElementById('canvas').getContext("2d");
 
 window.addEventListener('keyup', (e) => {
   if (e.key === ' ') {
