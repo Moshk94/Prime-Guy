@@ -1,0 +1,12 @@
+{
+    "name": "canvas-template-repository",
+    "scripts": {
+      "dev": "vite ./dev",
+      "test": "vite ./test",
+      "build": "vite build"
+    },
+    "devDependencies": {
+      "vite": "latest"
+    }
+  }
+  
