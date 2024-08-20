@@ -1,13 +1,12 @@
 import { PlayerClass, HealthBar, EnemyClass } from "./classess";
+import { circleRectColision } from "./helperFunctions";
 const ctx = document.getElementById('canvas').getContext("2d");
 
 let player = new PlayerClass(ctx);
 let playerHealthBar = new HealthBar(ctx, 40);
 let testEnemy = new EnemyClass(ctx, 40);
 
-const MATHFUNCTIONS = ['+', '-', '×', '÷',];
-const playerPower = [1, 3, 5]
-let currentFunction = 0;
+
 
 const keys = {
   u: {
@@ -44,29 +43,38 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowRight') {
     keys.r.pressed = 0;
+    player.maxAng = -45
+    player.dtAng = 45
   } else if (e.key === 'ArrowLeft') {
     keys.l.pressed = 0;
+    player.maxAng = -225
+    player.dtAng = -135
   } else if (e.key === 'ArrowUp') {
     keys.u.pressed = 0;
+    player.maxAng = -135
+    player.dtAng = -45
   } else if (e.key === 'ArrowDown') {
     keys.d.pressed = 0;
+    player.maxAng = 45
+    player.dtAng = 135
   };
 
   if (e.key === ' ') {
+    // player.dtAng = player.maxAng
     console.warn('You still need to code attacking')
-    if (currentFunction >= 3) { currentFunction = -1 }
-    currentFunction++;
-    playerHealthBar.mathfunction = MATHFUNCTIONS[currentFunction]
+
+    player.attacking = 1
+
   }
 
   if (e.key === '1') {
-    playerHealthBar.power = playerPower[0]
+    player.currentPower = 0
   }
   if (e.key === '2') {
-    playerHealthBar.power = playerPower[1]
+    player.currentPower = 1
   }
   if (e.key === '3') {
-    playerHealthBar.power = playerPower[2]
+    player.currentPower = 2
   }
 });
 
@@ -75,9 +83,30 @@ animate();
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   requestAnimationFrame(animate);
-  // testEnemy.draw();
+  testEnemy.draw();
   player.draw();
   playerHealthBar.draw();
+  playerHealthBar.power = player.playerPowers[player.currentPower];
+  playerHealthBar.mathfunction = player.playerMathFunction[player.currentFunction]
+  if(player.attacking && 
+
+    circleRectColision(
+      player.attX,
+      player.attY,
+      player.circleRadius,
+      testEnemy.x,
+      testEnemy.y,
+      testEnemy.width,
+      testEnemy.height
+    )
+
+  ){
+    testEnemy.damage( playerHealthBar.power, playerHealthBar.mathfunction)
+  }
+
+  if(!player.attacking){
+    testEnemy.damaged = 0;
+  }
 
   if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
   else if (keys.l.pressed && lastKey == 'l') { player.x -= player.movementSpeed }
