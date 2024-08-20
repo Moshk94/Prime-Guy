@@ -1,11 +1,15 @@
 import { PlayerClass, HealthBar, EnemyClass } from "./classess";
-import { circleRectColision } from "./helperFunctions";
-const ctx = document.getElementById('canvas').getContext("2d");
+import { circleRectColision, getRandomInt } from "./helperFunctions";
 
+const ctx = document.getElementById('canvas').getContext("2d");
+let hpFloor = -20
 let player = new PlayerClass(ctx);
 let playerHealthBar = new HealthBar(ctx, 40);
-let testEnemy = new EnemyClass(ctx, 40);
-
+let enemyArray1 = [
+  new EnemyClass(ctx, getRandomInt(0, canvas.width), getRandomInt(0, canvas.height), getRandomInt(hpFloor, hpFloor * -1)),
+  new EnemyClass(ctx, getRandomInt(0, canvas.width), getRandomInt(0, canvas.height), getRandomInt(hpFloor, hpFloor * -1)),
+  new EnemyClass(ctx, getRandomInt(0, canvas.width), getRandomInt(0, canvas.height), getRandomInt(hpFloor, hpFloor * -1)),
+]
 
 
 const keys = {
@@ -60,11 +64,7 @@ window.addEventListener('keyup', (e) => {
   };
 
   if (e.key === ' ') {
-    // player.dtAng = player.maxAng
-    console.warn('You still need to code attacking')
-
     player.attacking = 1
-
   }
 
   if (e.key === '1') {
@@ -83,30 +83,50 @@ animate();
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   requestAnimationFrame(animate);
-  testEnemy.draw();
+
+  enemyArray1.forEach(e => {
+    if (e.alive) {
+      e.draw();
+      e.move(player)
+    };
+
+
+
+    if (player.attacking &&
+
+      circleRectColision(
+        player.attX,
+        player.attY,
+        player.circleRadius,
+        e.x,
+        e.y,
+        e.width,
+        e.height
+      )
+
+    ) {
+      e.damage(playerHealthBar.power, playerHealthBar.mathfunction)
+    }
+
+    if (!player.attacking) {
+      e.damaged = 0;
+    }
+  });
+
   player.draw();
   playerHealthBar.draw();
+
+  // drawTextWithShadow(
+  //   ctx,
+  //   "Fear the thirteen",
+  //   canvas.width/2,
+  //   canvas.height * 0.1,
+  //   60,
+  //   "yellow"
+  // )
+
   playerHealthBar.power = player.playerPowers[player.currentPower];
   playerHealthBar.mathfunction = player.playerMathFunction[player.currentFunction]
-  if(player.attacking && 
-
-    circleRectColision(
-      player.attX,
-      player.attY,
-      player.circleRadius,
-      testEnemy.x,
-      testEnemy.y,
-      testEnemy.width,
-      testEnemy.height
-    )
-
-  ){
-    testEnemy.damage( playerHealthBar.power, playerHealthBar.mathfunction)
-  }
-
-  if(!player.attacking){
-    testEnemy.damaged = 0;
-  }
 
   if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
   else if (keys.l.pressed && lastKey == 'l') { player.x -= player.movementSpeed }

@@ -12,6 +12,10 @@ export function randomNumbersWithFixedSum(quantity, sum) {
     ];
 }
 
+export function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
 export function circleRectColision(cx, cy, radius, rx, ry, rw, rh) {
     let testX = cx;
     let testY = cy;
@@ -24,9 +28,26 @@ export function circleRectColision(cx, cy, radius, rx, ry, rw, rh) {
 
     if (distance <= radius) {
         return true;
-      }
-      return false;
+    }
+    return false;
 }
+
+export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333') {
+    ctx.save();
+    ctx.font = `${fontsize}px p`
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, centerX, centerY);
+    ctx.restore();
+};
+
+export function drawTextWithShadow(ctx, text, centerX, centerY, fontsize, color = 'white') {
+    drawText(ctx, text, centerX, centerY + fontsize / 10, fontsize, 'black');
+    drawText(ctx, text, centerX, centerY, fontsize, color);
+};
+
+
 
 export const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 

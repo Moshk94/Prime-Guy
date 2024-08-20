@@ -1,5 +1,5 @@
 import hpBarSrc from '/imgs/r.png'
-import { clamp, SpecInvlerp, rads } from './helperFunctions';
+import { clamp, SpecInvlerp, rads, getRandomArbitrary, getRandomInt } from './helperFunctions';
 
 export const hpBarImg = new Image();
 hpBarImg.src = hpBarSrc;
@@ -23,6 +23,7 @@ export class GameObject {
 export class PlayerClass extends GameObject {
     constructor(ctx) {
         super(ctx);
+        this.x = ctx.canvas.width * 0.25
         this.movementSpeed = 5;
         this.attacking = 0
         this.dtAng = 135
@@ -68,18 +69,24 @@ export class PlayerClass extends GameObject {
 }
 
 export class EnemyClass extends GameObject {
-    constructor(ctx) {
+    constructor(ctx, x, y, h) {
         super(ctx);
-        this.movementSpeed = 5;
-        this.width = 50;
-        this.imageWidth = 100;
-        this.maxhealth = 150;
-        this.currentHealth = 0
+        this.movementSpeed = getRandomArbitrary(0.01, 1);
+        this.width = getRandomInt(50,75);
+        this.height = this.width;
+        this.y = y;
+        this.x = x;
+        this.imageWidth = this.width * 2;
+        this.maxhealth = h;
+        this.currentHealth = h
         this.damaged = 0;
-
+        this.alive = 1
     };
     draw() {
         super.draw();
+        if (this.currentHealth == 13) {
+            this.alive = 0;
+        };
         let lerp1 = SpecInvlerp(
             Math.min(13, this.maxhealth),
             Math.max(13, this.maxhealth),
@@ -101,10 +108,11 @@ export class EnemyClass extends GameObject {
         this.ctx.drawImage(hpBarImg,
             xcord,
             this.y - 10, clamp(this.imageWidth * lerp1, this.imageWidth * -1, this.imageWidth), this.imageHeight);
-        this.ctx.restore();
-
-        this.ctx.font = "20px serif";
+        
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = `25px p`
         this.ctx.fillText(`${this.currentHealth}`, this.x + this.width / 2, this.y * 0.90);
+        this.ctx.restore();
     }
     damage(v, p) {
         if (!this.damaged) {
@@ -119,10 +127,23 @@ export class EnemyClass extends GameObject {
             } else if (p == '÷') {
                 if (this.currentHealth % v == 0 || this.currentHealth % v == -0) {
                     this.currentHealth /= v
-                }else {
+                } else {
                     console.log('Damage Player')
                 }
             }
+        }
+    }
+    move(player) {
+        if (this.y + this.height / 2 > player.y + player.height) {
+            this.y -= this.movementSpeed
+        } else if (this.y + this.height / 2 < player.y) {
+            this.y += this.movementSpeed
+        }
+
+        if (this.x + this.width / 2 > player.x + player.width) {
+            this.x -= this.movementSpeed
+        } else if (this.x + this.width / 2 < player.x) {
+            this.x += this.movementSpeed
         }
     }
 }
@@ -185,7 +206,7 @@ export class HealthBar {
     drawNumberPower() {
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'center';
-        this.ctx.font = "48px serif";
+        this.ctx.font = `48px p`
         this.ctx.fillText(`${this.mathfunction}${this.power}`, this.x, this.y * 1.05);
     }
 }
