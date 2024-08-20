@@ -1,4 +1,5 @@
 import hpBarSrc from '/imgs/r.png'
+import { clamp, SpecInvlerp } from './helperFunctions';
 
 export const hpBarImg = new Image();
 hpBarImg.src = hpBarSrc;
@@ -33,20 +34,36 @@ export class EnemyClass extends GameObject {
         this.movementSpeed = 5;
         this.width = 50;
         this.imageWidth = 100;
-        this.maxhealth = 0;
+        this.maxhealth = 150;
+        this.currentHealth = 0
     };
     draw() {
         super.draw();
+        let lerp1 = SpecInvlerp(
+            Math.min(13, this.maxhealth),
+            Math.max(13, this.maxhealth),
+            this.currentHealth
+        )
+        if (this.maxhealth < 13) { lerp1 -= 1 }
         this.imageHeight = this.imageWidth / 22.85
         this.ctx.drawImage(hpBarImg, this.x - (this.imageWidth / 2 - this.width / 2),
             this.y - 10, this.imageWidth, this.imageHeight);
-        this.ctx.save();
 
+
+        this.ctx.save();
         this.ctx.filter = this.color;
         this.color = `brightness(150%) hue-rotate(90deg)`;
-        this.ctx.drawImage(hpBarImg, this.x - (this.imageWidth / 2 - this.width / 2),
-            this.y - 10, this.imageWidth - this.maxhealth, this.imageHeight);
+        let xcord = this.x - (this.imageWidth / 2 - this.width / 2);
+
+        if (this.currentHealth < 13) { xcord += this.imageWidth; }
+
+        this.ctx.drawImage(hpBarImg,
+            xcord,
+            this.y - 10, clamp(this.imageWidth * lerp1, this.imageWidth * -1, this.imageWidth), this.imageHeight);
         this.ctx.restore();
+
+        this.ctx.font = "20px serif";
+        this.ctx.fillText(`${this.currentHealth}`, this.x + this.width / 2, this.y * 0.90);
     }
 }
 

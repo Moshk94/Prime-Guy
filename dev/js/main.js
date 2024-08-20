@@ -75,8 +75,7 @@ animate();
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
   requestAnimationFrame(animate);
-  testEnemy.draw();
-  testEnemy.maxhealth++
+  // testEnemy.draw();
   player.draw();
   playerHealthBar.draw();
 
