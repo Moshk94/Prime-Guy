@@ -23,7 +23,7 @@ let keyBoardKeys = [
 ]
 
 let enemyArray1 = [
-  new EnemyClass(ctx,canvas.width/2,canvas.height/2,5)
+  new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 10)
 
 ]
 
@@ -47,39 +47,47 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') {
     keys.r.pressed = 1;
     lastKey = 'r';
+    if (!player.attacking) {
+      player.attDir = 2
+    }
     keyBoardKeys[1].pressed = 1;
   } else if (e.key === 'ArrowLeft') {
     keys.l.pressed = 1;
     lastKey = 'l';
     keyBoardKeys[3].pressed = 1;
+    if (!player.attacking) {
+      player.attDir = 4
+    }
   } else if (e.key === 'ArrowUp') {
     keys.u.pressed = 1;
     lastKey = 'u';
     keyBoardKeys[0].pressed = 1;
+    if (!player.attacking) {
+      player.attDir = 1
+    }
   } else if (e.key === 'ArrowDown') {
     keys.d.pressed = 1;
     lastKey = 'd';
     keyBoardKeys[2].pressed = 1;
+    if (!player.attacking) {
+      player.attDir = 3
+    }
   }
 });
 
 window.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowRight') {
     keys.r.pressed = 0;
-    player.maxAng = -45
-    player.dtAng = 45
   } else if (e.key === 'ArrowLeft') {
     keys.l.pressed = 0;
-    player.maxAng = -225
-    player.dtAng = -135
+
   } else if (e.key === 'ArrowUp') {
     keys.u.pressed = 0;
-    player.maxAng = -135
-    player.dtAng = -45
+
   } else if (e.key === 'ArrowDown') {
     keys.d.pressed = 0;
-    player.maxAng = 45
-    player.dtAng = 135
+
+
   };
 
   if (e.key === ' ') {
@@ -228,7 +236,7 @@ function handleEnemies() {
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
-     // e.move(player)
+      // e.move(player)
     };
 
     if (player.attacking &&

@@ -1,5 +1,6 @@
 import hpBarSrc from '/imgs/r.png'
-import { clamp, SpecInvlerp, rads, getRandomArbitrary, getRandomInt } from './helperFunctions';
+import { clamp, SpecInvlerp, rads, getRandomArbitrary, getRandomInt, drawText } from './helperFunctions';
+
 
 export const hpBarImg = new Image();
 hpBarImg.src = hpBarSrc;
@@ -23,44 +24,59 @@ export class GameObject {
 export class PlayerClass extends GameObject {
     constructor(ctx) {
         super(ctx);
-        this.x = ctx.canvas.width * 0.5 - this.width/2
-        this.y = ctx.canvas.height * 0.5 - this.height/2
+        this.x = ctx.canvas.width * 0.25 - this.width / 2
+        this.y = ctx.canvas.height * 0.5 - this.height / 2
         this.movementSpeed = 5;
         this.attacking = 0
-        this.dtAng = 135
-        this.maxAng = 45
-        this.attX = this.x
-        this.attY = this.y + 50
         this.radius = 25
-        this.circleRadius = 15
+        this.circleRadius = 35
         this.playerPowers = [1, 3, 5]
         this.playerMathFunction = ['+', '-', '×', '÷']
         this.currentPower = 0;
         this.currentFunction = 0;
+        this.clock = 0;
+        this.attDir = 3
+        this.attX = this.x + this.width / 2;
+        this.attY = this.y + this.height
     };
     draw() {
         super.draw();
+
         if (this.attacking) {
             this.attack();
         } else {
-            this.dtAng = this.maxAng + 90
+            this.clock = 0
         }
     }
     attack() {
         //TODO: allow user to strafe when moving and attacking
-        if (this.dtAng > this.maxAng) {
-            this.dtAng -= 10
+
+
+        if (this.attDir == 1) {
+            this.attY = this.y
+            this.attX = this.x + this.width / 2;
+        } else if (this.attDir == 2) {
+            this.attY = this.y + this.height / 2
+            this.attX = this.x + this.width
+        } else if (this.attDir == 4) {
+            this.attY = this.y + this.height / 2
+            this.attX = this.x
+        } else {
+            this.attX = this.x + this.width / 2;
+            this.attY = this.y + this.height
+        }
+
+        if (this.clock < 1) {
+            this.clock++
         } else {
             this.attacking = 0
             if (this.currentFunction >= 3) { this.currentFunction = -1 }
             this.currentFunction++;
         }
-        this.attX = this.x + this.radius + Math.cos(rads(this.dtAng)) * 40
 
-        this.attY = this.y + this.radius + Math.sin(rads(this.dtAng)) * 40
 
         this.ctx.save()
-        this.ctx.fillStyle = "red";
+        this.ctx.fillStyle = "rgba(255,0,0,0.5)";
         this.ctx.beginPath();
         this.ctx.arc(this.attX, this.attY, this.circleRadius, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -73,11 +89,11 @@ export class EnemyClass extends GameObject {
     constructor(ctx, x, y, h) {
         super(ctx);
         this.movementSpeed = getRandomArbitrary(0.01, 1);
-        this.width = getRandomInt(50,75);
+        this.width = 100;
         this.height = this.width;
         this.y = y;
         this.x = x;
-        this.imageWidth = this.width * 2;
+        this.healthWidth = this.width * 2;
         this.maxhealth = h;
         this.currentHealth = h
         this.damaged = 0;
@@ -85,34 +101,37 @@ export class EnemyClass extends GameObject {
     };
     draw() {
         super.draw();
-        if (this.currentHealth == 13) {
+        let healthRatio = clamp(this.currentHealth / this.maxhealth, -1, 1)
+        let greenHealthOffset = 0;
+        if (this.currentHealth == 0) {
             this.alive = 0;
         };
-        let lerp1 = SpecInvlerp(
-            Math.min(13, this.maxhealth),
-            Math.max(13, this.maxhealth),
-            this.currentHealth
-        )
-        if (this.maxhealth < 13) { lerp1 -= 1 }
-        this.imageHeight = this.imageWidth / 22.85
-        this.ctx.drawImage(hpBarImg, this.x - (this.imageWidth / 2 - this.width / 2),
-            this.y - 10, this.imageWidth, this.imageHeight);
+        if (this.currentHealth < 0) {
+            greenHealthOffset = this.width * 2
+            if (this.healthRatio > 0) {
+                healthRatio *= -1
+            }
+        }
 
+        this.imageHeight = this.healthWidth / 22.85
+        this.ctx.drawImage(hpBarImg, this.x - (this.healthWidth / 2 - this.width / 2),
+            this.y - this.width / 6, this.healthWidth, this.imageHeight);
 
         this.ctx.save();
-        this.ctx.filter = this.color;
+
         this.color = `brightness(150%) hue-rotate(90deg)`;
-        let xcord = this.x - (this.imageWidth / 2 - this.width / 2);
+        this.ctx.filter = this.color;
+        this.ctx.drawImage(hpBarImg, greenHealthOffset + this.x - (this.healthWidth / 2 - this.width / 2),
+            this.y - this.width / 6, (this.healthWidth * healthRatio), this.imageHeight);
 
-        if (this.currentHealth < 13) { xcord += this.imageWidth; }
-
-        this.ctx.drawImage(hpBarImg,
-            xcord,
-            this.y - 10, clamp(this.imageWidth * lerp1, this.imageWidth * -1, this.imageWidth), this.imageHeight);
-        
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = `25px p`
-        this.ctx.fillText(`${this.currentHealth}`, this.x + this.width / 2, this.y * 0.90);
+        drawText(
+            this.ctx,
+            this.currentHealth,
+            this.x + (this.width / 2),
+            this.y - this.width / 6,
+            25,
+            'white'
+        )
         this.ctx.restore();
     }
     damage(v, p) {
