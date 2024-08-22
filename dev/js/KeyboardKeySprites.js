@@ -1,12 +1,9 @@
+import { drawText } from "./helperFunctions";
+
 export class KeyBoardSprite {
     constructor(ctx, txt) {
         this.letter = txt;
         this.ctx = ctx;
-        this.x = 20;
-        this.y = 50;
-        this.height = 100;
-        this.pressed = 0;
-        this.width = 100;
     }
 
     draw() {
@@ -68,17 +65,9 @@ export class KeyBoardSprite {
             this.ctx.lineTo(this.x + this.width * 0.75 + xOffSet, this.y + this.height * 0.50 + yOffSet);
             this.ctx.lineTo(this.x + this.width * 0.25 + xOffSet, this.y + this.height * 0.50 + yOffSet);
             this.ctx.fill();
-
-
             this.ctx.restore();
         } else {
-            this.ctx.fillStyle = 'Black';
-            this.ctx.font = `${fontSize}px p`;
-            this.ctx.textAlign = "center";
-            this.ctx.textBaseline = "middle";
-
-            this.ctx.fillText(this.letter, this.x + (this.width / 2), this.y + (this.height / 2) + textOffset);
-
+            drawText(this.ctx,this.letter,this.x+ (this.width / 2),this.y + (this.height / 2) + textOffset,fontSize,"black")
         }
     }
 }

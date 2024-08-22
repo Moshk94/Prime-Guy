@@ -23,7 +23,8 @@ export class GameObject {
 export class PlayerClass extends GameObject {
     constructor(ctx) {
         super(ctx);
-        this.x = ctx.canvas.width * 0.25
+        this.x = ctx.canvas.width * 0.5 - this.width/2
+        this.y = ctx.canvas.height * 0.5 - this.height/2
         this.movementSpeed = 5;
         this.attacking = 0
         this.dtAng = 135
@@ -33,7 +34,7 @@ export class PlayerClass extends GameObject {
         this.radius = 25
         this.circleRadius = 15
         this.playerPowers = [1, 3, 5]
-        this.playerMathFunction = ['+', '-', '×', '÷',]
+        this.playerMathFunction = ['+', '-', '×', '÷']
         this.currentPower = 0;
         this.currentFunction = 0;
     };

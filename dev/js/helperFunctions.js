@@ -47,8 +47,6 @@ export function drawTextWithShadow(ctx, text, centerX, centerY, fontsize, color 
     drawText(ctx, text, centerX, centerY, fontsize, color);
 };
 
-
-
 export const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));
 
 export const lerp = (x, y, a) => x * (1 - a) + y * a;
@@ -58,3 +56,5 @@ export const invlerp = (x, y, a) => clamp((a - x) / (y - x));
 export const SpecInvlerp = (x, y, a) => ((a - x) / (y - x));
 
 export const rads = (d) => d * 0.01745;
+
+export const allTrue  = (arr, fn = Boolean) => arr.every(fn);
