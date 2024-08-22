@@ -16,7 +16,7 @@ export function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-export function circleRectColision(cx, cy, radius, rx, ry, rw, rh) {
+export function circleRectCollision(cx, cy, radius, rx, ry, rw, rh) {
     let testX = cx;
     let testY = cy;
     if (cx < rx) { testX = rx } else if (cx > rx + rw) { testX = rx + rw };
@@ -30,6 +30,18 @@ export function circleRectColision(cx, cy, radius, rx, ry, rw, rh) {
         return true;
     }
     return false;
+}
+
+
+export function rectRectCollision( r1x,  r1y,  r1w,  r1h,  r2x,  r2y,  r2w,  r2h){
+    
+  if (r1x + r1w >= r2x &&   
+    r1x <= r2x + r2w &&  
+    r1y + r1h >= r2y && 
+    r1y <= r2y + r2h) { 
+      return true;
+}
+return false;
 }
 
 export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333') {

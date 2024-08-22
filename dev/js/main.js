@@ -1,5 +1,5 @@
 import { PlayerClass, HealthBar, EnemyClass } from "./classess";
-import { circleRectColision, drawText, getRandomInt, allTrue } from "./helperFunctions";
+import { circleRectCollision, drawText, getRandomInt, allTrue, rectRectCollision } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 const ctx = document.getElementById('canvas').getContext("2d");
@@ -23,7 +23,7 @@ let keyBoardKeys = [
 ]
 
 let enemyArray1 = [
-  new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 10)
+  new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 10),
 
 ]
 
@@ -44,34 +44,42 @@ const keys = {
 
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'ArrowRight') {
-    keys.r.pressed = 1;
-    lastKey = 'r';
-    if (!player.attacking) {
-      player.attDir = 2
+  if(player.alive){
+
+    if (e.key === 'ArrowRight') {
+      keys.r.pressed = 1;
+      lastKey = 'r';
+      if (!player.attacking) {
+        player.attDir = 2
+      }
+      keyBoardKeys[1].pressed = 1;
+    } else if (e.key === 'ArrowLeft') {
+      keys.l.pressed = 1;
+      lastKey = 'l';
+      keyBoardKeys[3].pressed = 1;
+      if (!player.attacking) {
+        player.attDir = 4
+      }
+    } else if (e.key === 'ArrowUp') {
+      keys.u.pressed = 1;
+      lastKey = 'u';
+      keyBoardKeys[0].pressed = 1;
+      if (!player.attacking) {
+        player.attDir = 1
+      }
+    } else if (e.key === 'ArrowDown') {
+      keys.d.pressed = 1;
+      lastKey = 'd';
+      keyBoardKeys[2].pressed = 1;
+      if (!player.attacking) {
+        player.attDir = 3
+      }
     }
-    keyBoardKeys[1].pressed = 1;
-  } else if (e.key === 'ArrowLeft') {
-    keys.l.pressed = 1;
-    lastKey = 'l';
-    keyBoardKeys[3].pressed = 1;
-    if (!player.attacking) {
-      player.attDir = 4
-    }
-  } else if (e.key === 'ArrowUp') {
-    keys.u.pressed = 1;
-    lastKey = 'u';
-    keyBoardKeys[0].pressed = 1;
-    if (!player.attacking) {
-      player.attDir = 1
-    }
-  } else if (e.key === 'ArrowDown') {
-    keys.d.pressed = 1;
-    lastKey = 'd';
-    keyBoardKeys[2].pressed = 1;
-    if (!player.attacking) {
-      player.attDir = 3
-    }
+  } else {
+    keys.r.pressed = 0;
+    keys.l.pressed = 0;
+    keys.u.pressed = 0;
+    keys.d.pressed = 0;
   }
 });
 
@@ -86,26 +94,28 @@ window.addEventListener('keyup', (e) => {
 
   } else if (e.key === 'ArrowDown') {
     keys.d.pressed = 0;
-
-
   };
 
-  if (e.key === ' ') {
-    player.attacking = 1
-  }
 
-  if (e.key === '1') {
-    player.currentPower = 0
-    keyBoardKeys[4].pressed = 1;
+  if(player.alive){
+    if (e.key === ' ') {
+      player.attacking = 1
+    }
+  
+    if (e.key === '1') {
+      player.currentPower = 0
+      keyBoardKeys[4].pressed = 1;
+    }
+    if (e.key === '2') {
+      player.currentPower = 1
+      keyBoardKeys[5].pressed = 1;
+    }
+    if (e.key === '3') {
+      player.currentPower = 2
+      keyBoardKeys[6].pressed = 1;
+    }
   }
-  if (e.key === '2') {
-    player.currentPower = 1
-    keyBoardKeys[5].pressed = 1;
-  }
-  if (e.key === '3') {
-    player.currentPower = 2
-    keyBoardKeys[6].pressed = 1;
-  }
+  
 });
 
 animate();
@@ -231,33 +241,55 @@ function instruction3() {
   }
 }
 
+function gameCollisionDetection(e){
+  if (player.attacking &&
+
+    circleRectCollision(
+      player.attX,
+      player.attY,
+      player.circleRadius,
+      e.x,
+      e.y,
+      e.width,
+      e.height
+    )
+
+  ) {
+    e.damage(playerHealthBar.power, playerHealthBar.mathfunction,playerHealthBar)
+  }
+
+  if (!player.attacking) {
+    e.damaged = 0;
+  }
+
+  if(player.alive){
+   if(rectRectCollision(
+      player.x,
+      player.y,
+      player.width,
+      player.height,
+      e.x,
+      e.y,
+      e.width,
+      e.height
+    ) && !player.invincible){
+      player.damagePlayer(playerHealthBar);
+    }
+  }
+}
+
 
 function handleEnemies() {
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
-      // e.move(player)
+      if(player.alive){
+      e.move(player)
+      }
+      
+     gameCollisionDetection(e)
     };
 
-    if (player.attacking &&
-
-      circleRectColision(
-        player.attX,
-        player.attY,
-        player.circleRadius,
-        e.x,
-        e.y,
-        e.width,
-        e.height
-      )
-
-    ) {
-      e.damage(playerHealthBar.power, playerHealthBar.mathfunction)
-    }
-
-    if (!player.attacking) {
-      e.damaged = 0;
-    }
   });
 }
 

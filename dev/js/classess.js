@@ -34,10 +34,15 @@ export class PlayerClass extends GameObject {
         this.playerMathFunction = ['+', '-', '×', '÷']
         this.currentPower = 0;
         this.currentFunction = 0;
-        this.clock = 0;
+        this.clock = {
+            attClock: 0,
+            dmgClock: 0
+        };
         this.attDir = 3
         this.attX = this.x + this.width / 2;
         this.attY = this.y + this.height
+        this.alive = 1;
+        this.invincible = 0
     };
     draw() {
         super.draw();
@@ -45,7 +50,15 @@ export class PlayerClass extends GameObject {
         if (this.attacking) {
             this.attack();
         } else {
-            this.clock = 0
+            this.clock.attClock = 0
+        }
+
+        if(this.invincible){
+            this.clock.dmgClock++
+        }
+        if(this.clock.dmgClock > 90){
+            this.clock.dmgClock = 0
+            this.invincible = 0
         }
     }
     attack() {
@@ -66,8 +79,8 @@ export class PlayerClass extends GameObject {
             this.attY = this.y + this.height
         }
 
-        if (this.clock < 1) {
-            this.clock++
+        if (this.clock.attClock < 1) {
+            this.clock.attClock++
         } else {
             this.attacking = 0
             if (this.currentFunction >= 3) { this.currentFunction = -1 }
@@ -82,6 +95,13 @@ export class PlayerClass extends GameObject {
         this.ctx.fill();
         this.ctx.stroke();
         this.ctx.restore();
+    }
+    damagePlayer(e) {
+        this.invincible = 1;
+        e.lives--
+        if(e.lives <= 0){
+            this.alive = 0
+        }
     }
 }
 
@@ -134,7 +154,7 @@ export class EnemyClass extends GameObject {
         )
         this.ctx.restore();
     }
-    damage(v, p) {
+    damage(v, p,h) {
         if (!this.damaged) {
             this.damaged = 1;
             ['+', '-', '×', '÷',]
@@ -148,7 +168,7 @@ export class EnemyClass extends GameObject {
                 if (this.currentHealth % v == 0 || this.currentHealth % v == -0) {
                     this.currentHealth /= v
                 } else {
-                    console.log('Damage Player')
+                    h.lives--
                 }
             }
         }
@@ -172,7 +192,7 @@ export class HealthBar {
     constructor(ctx, width) {
         this.ctx = ctx;
         this.width = width;
-        this.lives = 5;
+        this.lives = 1;
         this.x = width * 1.1;
         this.y = width;
         this.mathfunction = '+';
