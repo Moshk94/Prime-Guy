@@ -1,19 +1,18 @@
-import { PlayerClass, HealthBar, EnemyClass } from "./classess";
-import { circleRectCollision, drawText, getRandomInt, allTrue, rectRectCollision, randomNumbersWithFixedSum } from "./helperFunctions";
+import { PlayerClass, EnemyClass } from "./classess";
+import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 const ctx = document.getElementById('canvas').getContext("2d");
 resizeCanvas();
 
 let player = new PlayerClass(ctx);
-let playerHealthBar = new HealthBar(ctx, 40);
 
 let enemyArray1 = []
 
-let enemyHealtPool1 = randomNumbersWithFixedSum(1,13,10)
+let enemyHealtPool1 = randomNumbersWithFixedSum(1, 13, 10)
 
-enemyHealtPool1.forEach(e=>{
-  enemyArray1.push(new EnemyClass(ctx,canvas.width/2,canvas.height/2,e))
+enemyHealtPool1.forEach(e => {
+  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, e))
 })
 
 console.log(enemyArray1)
@@ -28,6 +27,7 @@ let keyBoardKeys = [
   , new KeyBoardSprite(ctx, '3')
 
   , new KeyBoardSprite(ctx, 'Space')
+  , new KeyBoardSprite(ctx, 'Esc')
 ]
 
 
@@ -49,7 +49,7 @@ const keys = {
 
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
-  if(player.alive){
+  if (player.alive) {
 
     if (e.key === 'ArrowRight') {
       keys.r.pressed = 1;
@@ -102,25 +102,25 @@ window.addEventListener('keyup', (e) => {
   };
 
 
-  if(player.alive){
+  if (player.alive) {
     if (e.key === ' ') {
       player.attacking = 1
     }
-  
+
     if (e.key === '1') {
-      player.currentPower = 0
+      player.power = 1
       keyBoardKeys[4].pressed = 1;
     }
     if (e.key === '2') {
-      player.currentPower = 1
+      player.power = 2
       keyBoardKeys[5].pressed = 1;
     }
     if (e.key === '3') {
-      player.currentPower = 2
+      player.power = 5
       keyBoardKeys[6].pressed = 1;
     }
   }
-  
+
 });
 
 animate();
@@ -133,12 +133,11 @@ function animate() {
   requestAnimationFrame(animate);
   player.draw();
 
-  instruction1();
+  // instruction1();
   //instruction2();
   //instruction3();
   handleEnemies();
-  playerHealthBar.draw();
-
+  gameOverScreen();
   // drawTextWithShadow(
   //   ctx,
   //   "Fear the thirteen",
@@ -147,9 +146,6 @@ function animate() {
   //   60,
   //   "yellow"
   // )
-
-  playerHealthBar.power = player.playerPowers[player.currentPower];
-  playerHealthBar.mathfunction = player.playerMathFunction[player.currentFunction]
 
   if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
   else if (keys.l.pressed && lastKey == 'l') { player.x -= player.movementSpeed }
@@ -246,7 +242,7 @@ function instruction3() {
   }
 }
 
-function gameCollisionDetection(e){
+function gameCollisionDetection(e) {
   if (player.attacking &&
 
     circleRectCollision(
@@ -260,15 +256,15 @@ function gameCollisionDetection(e){
     )
 
   ) {
-    e.damage(playerHealthBar.power, playerHealthBar.mathfunction,playerHealthBar)
+    e.damage(player)
   }
 
   if (!player.attacking) {
     e.damaged = 0;
   }
 
-  if(player.alive){
-   if(rectRectCollision(
+  if (player.alive) {
+    if (rectRectCollision(
       player.x,
       player.y,
       player.width,
@@ -277,8 +273,8 @@ function gameCollisionDetection(e){
       e.y,
       e.width,
       e.height
-    ) && !player.invincible){
-      player.damagePlayer(playerHealthBar);
+    ) && !player.invincible) {
+      player.damagePlayer();
     }
   }
 }
@@ -289,8 +285,8 @@ function handleEnemies() {
     if (e.alive) {
       e.draw();
       e.move(player)
-      
-     gameCollisionDetection(e)
+
+      gameCollisionDetection(e)
     };
 
   });
@@ -299,4 +295,21 @@ function handleEnemies() {
 function resizeCanvas() {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
+}
+
+
+
+
+function gameOverScreen() {
+  let x = canvas.width / 2
+  let y = canvas.height * 0.25
+  if(player.lives <=0){
+  drawTextWithShadow(ctx, "Game Over!", x, y, 100, "white");
+  drawText(ctx, "    to quit", x, y + 100, 50, "black");
+  keyBoardKeys[8].draw();
+  keyBoardKeys[8].x = x - 130
+  keyBoardKeys[8].y = y + 100 - 25
+  keyBoardKeys[8].width = 60
+  keyBoardKeys[8].height = 50
+  }
 }

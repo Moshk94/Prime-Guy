@@ -1,6 +1,5 @@
 import hpBarSrc from '/imgs/r.png'
-import { clamp, SpecInvlerp, rads, getRandomArbitrary, getRandomInt, drawText } from './helperFunctions';
-
+import { clamp, getRandomArbitrary,drawText } from './helperFunctions';
 
 export const hpBarImg = new Image();
 hpBarImg.src = hpBarSrc;
@@ -27,12 +26,10 @@ export class PlayerClass extends GameObject {
         this.x = ctx.canvas.width * 0.25 - this.width / 2
         this.y = ctx.canvas.height * 0.5 - this.height / 2
         this.movementSpeed = 5;
-        this.attacking = 0
-        this.radius = 25
-        this.circleRadius = 35
-        this.playerPowers = [1, 2, 5]
-        this.playerMathFunction = ['+', '-', '×', '÷']
-        this.currentPower = 0;
+        this.attacking = 0;
+        this.radius = 25;
+        this.circleRadius = 35;
+        this.playerMathFunction = ['+', '-', '×', '÷'];
         this.currentFunction = 0;
         this.clock = {
             attClock: 0,
@@ -43,9 +40,13 @@ export class PlayerClass extends GameObject {
         this.attY = this.y + this.height
         this.alive = 1;
         this.invincible = 0
+        this.lives = 1
+        this.currentMathfunction = '+';
+        this.power = 1;
     };
     draw() {
         super.draw();
+        this.drawPlayerInfo();
 
         if (this.attacking) {
             this.attack();
@@ -53,13 +54,18 @@ export class PlayerClass extends GameObject {
             this.clock.attClock = 0
         }
 
-        if(this.invincible){
+        if (this.invincible) {
             this.clock.dmgClock++
         }
-        if(this.clock.dmgClock > 90){
+        if (this.clock.dmgClock > 90) {
             this.clock.dmgClock = 0
             this.invincible = 0
         }
+    }
+    drawPlayerInfo() {
+        drawText(this.ctx, `❤️ x${this.lives}`, 80, 30, 60, 'white')
+        drawText(this.ctx, `⚔️`, 36, 95, 60, 'white')
+        drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, 125, 95, 60, 'white')
     }
     attack() {
         //TODO: allow user to strafe when moving and attacking
@@ -96,10 +102,10 @@ export class PlayerClass extends GameObject {
         this.ctx.stroke();
         this.ctx.restore();
     }
-    damagePlayer(e) {
+    damagePlayer() {
         this.invincible = 1;
-        e.lives--
-        if(e.lives <= 0){
+        this.lives--
+        if (this.lives <= 0) {
             this.alive = 0
         }
     }
@@ -122,20 +128,20 @@ export class EnemyClass extends GameObject {
     draw() {
         super.draw();
         let healthRatio = Math.abs(clamp(this.currentHealth / this.maxhealth, -1, 1))
-        
+
         let greenHealthOffset = 0;
         if (this.currentHealth == 0) {
             this.alive = 0;
         };
         if (this.currentHealth < 0) {
-            
+
 
             greenHealthOffset = this.width * 2
             if (this.currentHealth < 0) {
                 healthRatio *= -1
             }
         }
-        
+
         this.imageHeight = this.healthWidth / 22.85
         this.ctx.drawImage(hpBarImg, this.x - (this.healthWidth / 2 - this.width / 2),
             this.y - this.width / 6, this.healthWidth, this.imageHeight);
@@ -157,101 +163,40 @@ export class EnemyClass extends GameObject {
         )
         this.ctx.restore();
     }
-    damage(v, p,h) {
+    damage(player) {
         if (!this.damaged) {
             this.damaged = 1;
             ['+', '-', '×', '÷',]
-            if (p == '+') {
-                this.currentHealth += v
-            } else if (p == '-') {
-                this.currentHealth -= v
-            } else if (p == '×') {
-                this.currentHealth *= v
-            } else if (p == '÷') {
-                if (this.currentHealth % v == 0 || this.currentHealth % v == -0) {
-                    this.currentHealth /= v
+            // console.log(player.currentFunction)
+            if (player.currentFunction == 0) {
+                console.log(player.power)
+                this.currentHealth += player.power
+            } else if (player.currentFunction == 1) {
+                this.currentHealth -= player.power
+            } else if (player.currentFunction == 2) {
+                this.currentHealth *= player.power
+            } else if (player.currentFunction == 3) {
+                if (this.currentHealth % player.power == 0 || this.currentHealth % player.power == -0) {
+                    this.currentHealth /= player.power
                 } else {
-                    h.lives--
+                    player.lives--
                 }
             }
         }
     }
     move(player) {
         let followPlayer = 1
-        if(!player.alive){followPlayer = -1}
+        if (!player.alive) { followPlayer = -1 }
         if (this.y + this.height / 2 > player.y + player.height) {
             this.y -= this.movementSpeed * followPlayer
         } else if (this.y + this.height / 2 < player.y) {
-            this.y += this.movementSpeed  * followPlayer
+            this.y += this.movementSpeed * followPlayer
         }
 
         if (this.x + this.width / 2 > player.x + player.width) {
-            this.x -= this.movementSpeed  * followPlayer
+            this.x -= this.movementSpeed * followPlayer
         } else if (this.x + this.width / 2 < player.x) {
-            this.x += this.movementSpeed  * followPlayer
+            this.x += this.movementSpeed * followPlayer
         }
-    }
-}
-
-export class HealthBar {
-    constructor(ctx, width) {
-        this.ctx = ctx;
-        this.width = width;
-        this.lives = 5;
-        this.x = width * 1.1;
-        this.y = width;
-        this.mathfunction = '+';
-        this.power = 1;
-    }
-
-    draw() {
-        //TODO: Tidy up draw function
-        const a = 2 * Math.PI / 6;
-        const r = this.width;
-
-        const x2 = this.x + (this.width * 1.1)
-        const y2 = this.y + (this.width * 0.15)
-        let ratio = 2.5
-        let healthWidth = (this.width / ratio)
-        let height = (this.width / 1.75) * 1.2
-
-        this.ctx.save();
-        this.ctx.lineWidth = r * 0.1;
-        this.ctx.beginPath();
-        for (var i = 0; i < 6; i++) {
-            this.ctx.lineTo(this.x + r * Math.cos(a * i), this.y + r * Math.sin(a * i));
-        }
-        this.ctx.closePath();
-
-        this.ctx.fillStyle = "white";
-        this.ctx.fill();
-
-        this.ctx.stroke();
-        this.ctx.restore();
-        let spacing = healthWidth * 1.5
-        this.ctx.save();
-        this.ctx.lineWidth = r * 0.1;
-        for (var i = 0; i < this.lives; i++) {
-
-            this.ctx.beginPath();
-            this.ctx.lineTo(x2 + (i * spacing), y2);
-            this.ctx.lineTo(x2 + (healthWidth) + (i * spacing), y2);
-            this.ctx.lineTo(x2 + (healthWidth * Math.cos(a * 1.5)) + (i * spacing), y2 + height);
-            this.ctx.lineTo(x2 - (healthWidth) + (i * spacing), y2 + height);
-            this.ctx.closePath();
-
-            this.ctx.stroke();
-            this.ctx.fillStyle = "darkred";
-            this.ctx.fill();
-        };
-
-        this.ctx.restore();
-        this.drawNumberPower()
-    }
-    drawNumberPower() {
-        this.ctx.textBaseline = 'middle';
-        this.ctx.textAlign = 'center';
-        this.ctx.font = `48px p`
-        this.ctx.fillText(`${this.mathfunction}${this.power}`, this.x, this.y * 1.05);
     }
 }
