@@ -145,10 +145,7 @@ export class EnemyClass extends GameObject {
 
         this.ctx.fill();
         this.ctx.restore();
-
-
-
-
+        
         this.ctx.save();
         this.ctx.fillStyle = "darkred";
         this.ctx.fillText(txt, this.x, this.y + this.height);
