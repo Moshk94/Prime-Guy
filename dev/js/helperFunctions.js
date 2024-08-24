@@ -2,13 +2,13 @@ export function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-export function randomNumbersWithFixedSum(quantity, sum) {
+export function randomNumbersWithFixedSum(quantity, sum,h) {
     if (quantity === 1) { return [sum]; }
 
-    const randomNum = getRandomInt(0, sum);
+    const randomNum = getRandomInt(h, sum);
     return [
         randomNum,
-        ...randomNumbersWithFixedSum(quantity - 1, sum - randomNum),
+        ...randomNumbersWithFixedSum(quantity - 1, sum - randomNum,h),
     ];
 }
 

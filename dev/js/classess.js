@@ -30,7 +30,7 @@ export class PlayerClass extends GameObject {
         this.attacking = 0
         this.radius = 25
         this.circleRadius = 35
-        this.playerPowers = [1, 3, 5]
+        this.playerPowers = [1, 2, 5]
         this.playerMathFunction = ['+', '-', '×', '÷']
         this.currentPower = 0;
         this.currentFunction = 0;
@@ -108,7 +108,7 @@ export class PlayerClass extends GameObject {
 export class EnemyClass extends GameObject {
     constructor(ctx, x, y, h) {
         super(ctx);
-        this.movementSpeed = getRandomArbitrary(0.01, 1);
+        this.movementSpeed = getRandomArbitrary(0.1, 1);
         this.width = 100;
         this.height = this.width;
         this.y = y;
@@ -121,18 +121,21 @@ export class EnemyClass extends GameObject {
     };
     draw() {
         super.draw();
-        let healthRatio = clamp(this.currentHealth / this.maxhealth, -1, 1)
+        let healthRatio = Math.abs(clamp(this.currentHealth / this.maxhealth, -1, 1))
+        
         let greenHealthOffset = 0;
         if (this.currentHealth == 0) {
             this.alive = 0;
         };
         if (this.currentHealth < 0) {
+            
+
             greenHealthOffset = this.width * 2
-            if (this.healthRatio > 0) {
+            if (this.currentHealth < 0) {
                 healthRatio *= -1
             }
         }
-
+        
         this.imageHeight = this.healthWidth / 22.85
         this.ctx.drawImage(hpBarImg, this.x - (this.healthWidth / 2 - this.width / 2),
             this.y - this.width / 6, this.healthWidth, this.imageHeight);
@@ -174,16 +177,18 @@ export class EnemyClass extends GameObject {
         }
     }
     move(player) {
+        let followPlayer = 1
+        if(!player.alive){followPlayer = -1}
         if (this.y + this.height / 2 > player.y + player.height) {
-            this.y -= this.movementSpeed
+            this.y -= this.movementSpeed * followPlayer
         } else if (this.y + this.height / 2 < player.y) {
-            this.y += this.movementSpeed
+            this.y += this.movementSpeed  * followPlayer
         }
 
         if (this.x + this.width / 2 > player.x + player.width) {
-            this.x -= this.movementSpeed
+            this.x -= this.movementSpeed  * followPlayer
         } else if (this.x + this.width / 2 < player.x) {
-            this.x += this.movementSpeed
+            this.x += this.movementSpeed  * followPlayer
         }
     }
 }
@@ -192,7 +197,7 @@ export class HealthBar {
     constructor(ctx, width) {
         this.ctx = ctx;
         this.width = width;
-        this.lives = 1;
+        this.lives = 5;
         this.x = width * 1.1;
         this.y = width;
         this.mathfunction = '+';

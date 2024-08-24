@@ -1,5 +1,5 @@
 import { PlayerClass, HealthBar, EnemyClass } from "./classess";
-import { circleRectCollision, drawText, getRandomInt, allTrue, rectRectCollision } from "./helperFunctions";
+import { circleRectCollision, drawText, getRandomInt, allTrue, rectRectCollision, randomNumbersWithFixedSum } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 const ctx = document.getElementById('canvas').getContext("2d");
@@ -8,7 +8,15 @@ resizeCanvas();
 let player = new PlayerClass(ctx);
 let playerHealthBar = new HealthBar(ctx, 40);
 
+let enemyArray1 = []
 
+let enemyHealtPool1 = randomNumbersWithFixedSum(1,13,10)
+
+enemyHealtPool1.forEach(e=>{
+  enemyArray1.push(new EnemyClass(ctx,canvas.width/2,canvas.height/2,e))
+})
+
+console.log(enemyArray1)
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
   , new KeyBoardSprite(ctx, 'rArrow')
@@ -22,10 +30,7 @@ let keyBoardKeys = [
   , new KeyBoardSprite(ctx, 'Space')
 ]
 
-let enemyArray1 = [
-  new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 10),
 
-]
 
 const keys = {
   u: {
@@ -283,9 +288,7 @@ function handleEnemies() {
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
-      if(player.alive){
       e.move(player)
-      }
       
      gameCollisionDetection(e)
     };
