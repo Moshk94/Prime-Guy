@@ -39,9 +39,10 @@ export class PlayerClass extends GameObject {
         this.attY = this.y + this.height
         this.alive = 1;
         this.invincible = 0
-        this.lives = 1
+        this.lives = 500
         this.currentMathfunction = '+';
         this.power = 1;
+        this.score = 0;
     };
     draw() {
         super.draw();
@@ -62,14 +63,13 @@ export class PlayerClass extends GameObject {
         }
     }
     drawPlayerInfo() {
-        drawText(this.ctx, `❤️ x${this.lives}`, 80, 30, 60, 'white')
-        drawText(this.ctx, `⚔️`, 36, 95, 60, 'white')
-        drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, 125, 95, 60, 'white')
+        console.log(this.score)
+        drawText(this.ctx, `${this.lives}`, 80, 30, 60, 'white')
+        drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, 125, 95, 60, 'white');
+        drawText(this.ctx, `Score:${this.score}`, 150, canvas.width * 0.14, 50, "white");
     }
     attack() {
         //TODO: allow user to strafe when moving and attacking
-
-
         if (this.attDir == 1) {
             this.attY = this.y
             this.attX = this.x + this.width / 2;
@@ -145,7 +145,7 @@ export class EnemyClass extends GameObject {
 
         this.ctx.fill();
         this.ctx.restore();
-        
+
         this.ctx.save();
         this.ctx.fillStyle = "darkred";
         this.ctx.fillText(txt, this.x, this.y + this.height);

@@ -7,12 +7,22 @@ resizeCanvas();
 
 let player = new PlayerClass(ctx);
 let fadeBox = new GameObject(ctx);
-let enemyArray1 = []
+let enemyArray1 = [];
+
+let hiScore = 0
+
+// (max 4, 13, no max - increment)
+
+// let enemyHealtPool1 = randomNumbersWithFixedSum(4, 13, 1000)
+
+// enemyHealtPool1.forEach(e => {
+//   enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, e))
+// })
 
 let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
 
 enemyHealtPool1.forEach(e => {
-  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 20))
+  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 12))
 })
 let globalClock = {
   dt: 0,
@@ -108,6 +118,9 @@ window.addEventListener('keyup', (e) => {
 
   if (player.alive) {
     if (e.key === ' ') {
+      if(gameState == 0){
+        gameState = 1
+      }
       player.attacking = 1
     }
 
@@ -163,7 +176,7 @@ function instruction1() {
     let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
-    drawText(ctx, "press         to move", x, y, 50, "black");
+    drawText(ctx, "PRESS         TO MOVE", x, y, 50, "black");
 
     for (let i = 0; i < 4; i++) {
       ctx.save();
@@ -195,7 +208,7 @@ function instruction2() {
     let x = canvas.width / 2
     let y = canvas.height * 0.25
     let pressedKeys = [];
-    drawText(ctx, "Press          to change attack power", x, y, 50, "black");
+    drawText(ctx, "PRESS          TO CHANGE ATTACK POWER", x, y, 50, "black");
 
     for (let i = 4; i < 7; i++) {
       ctx.save();
@@ -226,9 +239,9 @@ function instruction3() {
     let y = canvas.height * 0.25
     let pressedKeys = [];
 
-    drawText(ctx, "See that '0' over there? ", x, y, 50, "black");
-    drawText(ctx, "Get it to 13 by pressing", x - 15, y + 50, 50, "black");
-    drawText(ctx, "your attack type changes after every swing", x - 15, y + 175, 25, "black");
+    drawText(ctx, "SEE THAT '0' OVER THERE?", x, y, 50, "black");
+    drawText(ctx, "GET IT TO 13 BY PRESSING", x - 15, y + 50, 50, "black");
+    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15, y + 175, 25, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -246,7 +259,7 @@ function instruction3() {
       enemyArray1[0].movementSpeed = 0.1;
       enemyArray1[0].special = 1;
     }
-    
+
     if (enemyArray1[0].lives == 13) {
       globalClock.s = 0
       gameState++
@@ -259,12 +272,12 @@ function instruction4() {
     let x = canvas.width / 2 + 15
     let y = canvas.height * 0.25
     if (globalClock.s < 3) {
-      drawText(ctx, "Oh, oh, looks like it brought more friends", x, y, 50, "black");
+      drawText(ctx, "UH-OH, LOOKS LIKE IT BROUGHT MORE FRIENDS", x, y, 50, "black");
     } if (globalClock.s < 6 && globalClock.s >= 3) {
-      drawText(ctx, "Make sure you dont leave", x, y, 50, "black");
-      drawText(ctx, "any remainders when dividing", x, y + 50, 50, "black");
+      drawText(ctx, "MAKE SURE YOU DONT LEAVE", x, y, 50, "black");
+      drawText(ctx, "ANY REMAINDERS WHEN DIVIDING", x, y + 50, 50, "black");
     } if (globalClock.s > 6 && globalClock.s < 9) {
-      drawText(ctx, "Good luck!", x, y, 50, "black");
+      drawText(ctx, "GOOD LUCK!", x, y, 50, "black");
 
     } if (globalClock.s >= 9) {
       gameState = 1
@@ -287,13 +300,16 @@ function gameCollisionDetection(e) {
 
   ) {
     e.damage(player)
+    if (e.alive) {
+      player.score++
+    }
   }
 
   if (!player.attacking) {
     e.damaged = 0;
   }
 
-  if(e.remainder != 0){
+  if (e.remainder != 0) {
     enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder))
     e.remainder = 0
   }
@@ -370,33 +386,36 @@ function moveFadeBox() {
 
 function resetGame() {
   player.lives = 5;
-  player.x = canvas.width/2 - player.width/2
-  player.y = canvas.height/2 - player.height/2
+  player.x = canvas.width / 2 - player.width / 2
+  player.y = canvas.height / 2 - player.height / 2
+  player.score = 0;
+  hiScore = Math.max(player.score, hiScore)
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
   }
-  
+
 }
 
 
 function drawGameTitle() {
   if (gameState == -4 || gameState == 0) {
-    drawTextWithShadow(ctx, "Don't fear the 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
+    drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
   }
 
-  if(gameState == 0){
+  if (gameState == 0) {
     let x = canvas.width / 2 + 15
     let y = canvas.height * 0.25
 
-    
-    drawText(ctx, "to begin", canvas.width/2 + keyBoardKeys[7].width * 0.4, canvas.width*0.56 + keyBoardKeys[7].height/2, 50, "black");
+
+    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.width * 0.56 + keyBoardKeys[7].height / 2, 50, "black");
+    drawText(ctx, `Hi-Score:${hiScore}`, 150, canvas.width * 0.14, 50, "white");
     ctx.save();
     keyBoardKeys[7].draw();
     keyBoardKeys[7].width = 300
     keyBoardKeys[7].height = 50
     ctx.restore();
 
-    keyBoardKeys[7].x = canvas.width/2 -  keyBoardKeys[7].width
-    keyBoardKeys[7].y = canvas.width*0.56
+    keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
+    keyBoardKeys[7].y = canvas.width * 0.56
   }
 }
