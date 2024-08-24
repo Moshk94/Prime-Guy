@@ -1,21 +1,26 @@
-import { PlayerClass, EnemyClass } from "./classess";
-import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow } from "./helperFunctions";
+import { PlayerClass, EnemyClass, GameObject } from "./classess";
+import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 const ctx = document.getElementById('canvas').getContext("2d");
 resizeCanvas();
 
 let player = new PlayerClass(ctx);
-
+let fadeBox = new GameObject(ctx);
 let enemyArray1 = []
 
-let enemyHealtPool1 = randomNumbersWithFixedSum(1, 13, 10)
+let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
 
 enemyHealtPool1.forEach(e => {
   enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, e))
 })
+let globalClock = {
+  dt: 0,
+  s: 0,
+}
+enemyArray1[0].movementSpeed = 0
+let gameState = 1
 
-console.log(enemyArray1)
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
   , new KeyBoardSprite(ctx, 'rArrow')
@@ -101,7 +106,6 @@ window.addEventListener('keyup', (e) => {
     keys.d.pressed = 0;
   };
 
-
   if (player.alive) {
     if (e.key === ' ') {
       player.attacking = 1
@@ -119,44 +123,45 @@ window.addEventListener('keyup', (e) => {
       player.power = 5
       keyBoardKeys[6].pressed = 1;
     }
+  } else {
+    if (e.key == "Escape") {
+      gameState = 2
+    }
   }
-
 });
 
 animate();
 
 function animate() {
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-
+  globalClock.dt++
+  if (globalClock.dt % 60 == 0) {
+    globalClock.s++
+  }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   resizeCanvas()
   requestAnimationFrame(animate);
   player.draw();
 
-  // instruction1();
-  //instruction2();
-  //instruction3();
+  instruction1();
+  instruction2();
+  instruction3();
+  instruction4();
   handleEnemies();
   gameOverScreen();
-  // drawTextWithShadow(
-  //   ctx,
-  //   "Fear the thirteen",
-  //   canvas.width/2,
-  //   canvas.height * 0.1,
-  //   60,
-  //   "yellow"
-  // )
+
 
   if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
   else if (keys.l.pressed && lastKey == 'l') { player.x -= player.movementSpeed }
   else if (keys.d.pressed && lastKey == 'd') { player.y += player.movementSpeed }
   else if (keys.u.pressed && lastKey == 'u') { player.y -= player.movementSpeed }
+  drawGameTitle();
+  moveFadeBox();
 }
 
 function instruction1() {
-  if (localStorage.getItem("DFTT-Tutorial1") != 1) {
+  if (gameState == -4) {
     let x = canvas.width / 2
-    let y = canvas.height * 0.25
+    let y = canvas.height * 0.75
     let pressedKeys = [];
     drawText(ctx, "press         to move", x, y, 50, "black");
 
@@ -180,13 +185,13 @@ function instruction1() {
       pressedKeys.push(keyBoardKeys[i].pressed)
     }
 
-    // if (allTrue(pressedKeys)) {
-    //   localStorage.setItem('DFTT-Tutorial1',1);
-    // }
+    if (allTrue(pressedKeys)) {
+      gameState++;
+    }
   }
 }
 function instruction2() {
-  if (localStorage.getItem("DFTT-Tutorial2") != 1) {
+  if (gameState == -3) {
     let x = canvas.width / 2
     let y = canvas.height * 0.25
     let pressedKeys = [];
@@ -210,19 +215,20 @@ function instruction2() {
       pressedKeys.push(keyBoardKeys[i].pressed)
     }
 
-    // if (allTrue(pressedKeys)) {
-    //   localStorage.setItem('DFTT-Tutorial2',1);
-    // }
+    if (allTrue(pressedKeys)) {
+      gameState++
+    }
   }
 }
 function instruction3() {
-  if (localStorage.getItem("DFTT-Tutorial3") != 1) {
-    let x = canvas.width / 2
+  if (gameState == -2) {
+    let x = canvas.width / 2 + 15
     let y = canvas.height * 0.25
     let pressedKeys = [];
-    drawText(ctx, "See that enemy over there? ", x, y, 50, "black");
-    drawText(ctx, "Get his health to 0 by pressing", x, y + 50, 50, "black");
 
+    drawText(ctx, "See that '0' over there? ", x, y, 50, "black");
+    drawText(ctx, "Get it to 13 by pressing", x - 15, y + 50, 50, "black");
+    drawText(ctx, "your attack type changes after every swing", x - 15, y + 175, 25, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -230,15 +236,39 @@ function instruction3() {
     keyBoardKeys[7].height = 50
     ctx.restore();
 
-    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5
-    keyBoardKeys[7].y = y + 100
+    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15
+    keyBoardKeys[7].y = y + 90
 
     pressedKeys.push(keyBoardKeys[7].pressed)
 
+    if (enemyArray1.length == 0) {
+      enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height * 0.75, 0))
+      enemyArray1[0].movementSpeed = 0.1;
+      enemyArray1[0].special = 1;
+    }
+    
+    if (enemyArray1[0].lives == 13) {
+      globalClock.s = 0
+      gameState++
+    }
+  }
+}
 
-    // if (allTrue(pressedKeys)) {
-    //   localStorage.setItem('DFTT-Tutorial3',1);
-    // }
+function instruction4() {
+  if (gameState == -1) {
+    let x = canvas.width / 2 + 15
+    let y = canvas.height * 0.25
+    if (globalClock.s < 3) {
+      drawText(ctx, "Oh, oh, looks like it brought more friends", x, y, 50, "black");
+    } if (globalClock.s < 6 && globalClock.s >= 3) {
+      drawText(ctx, "Make sure you dont leave", x, y, 50, "black");
+      drawText(ctx, "any remainders when dividing", x, y + 50, 50, "black");
+    } if (globalClock.s > 6 && globalClock.s < 9) {
+      drawText(ctx, "Good luck!", x, y, 50, "black");
+
+    } if (globalClock.s >= 9) {
+      gameState = 1
+    }
   }
 }
 
@@ -263,6 +293,11 @@ function gameCollisionDetection(e) {
     e.damaged = 0;
   }
 
+  if(e.remainder != 0){
+    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder))
+    e.remainder = 0
+  }
+
   if (player.alive) {
     if (rectRectCollision(
       player.x,
@@ -273,7 +308,7 @@ function gameCollisionDetection(e) {
       e.y,
       e.width,
       e.height
-    ) && !player.invincible) {
+    ) && !player.invincible && gameState == 1) {
       player.damagePlayer();
     }
   }
@@ -297,19 +332,56 @@ function resizeCanvas() {
   ctx.canvas.height = window.innerHeight;
 }
 
-
-
-
 function gameOverScreen() {
   let x = canvas.width / 2
   let y = canvas.height * 0.25
-  if(player.lives <=0){
-  drawTextWithShadow(ctx, "Game Over!", x, y, 100, "white");
-  drawText(ctx, "    to quit", x, y + 100, 50, "black");
-  keyBoardKeys[8].draw();
-  keyBoardKeys[8].x = x - 130
-  keyBoardKeys[8].y = y + 100 - 25
-  keyBoardKeys[8].width = 60
-  keyBoardKeys[8].height = 50
+  if (player.lives <= 0) {
+    drawTextWithShadow(ctx, "Game Over!", x, y, 100, "white");
+    drawText(ctx, "    to quit", x, y + 100, 50, "black");
+    keyBoardKeys[8].draw();
+    keyBoardKeys[8].x = x - 130
+    keyBoardKeys[8].y = y + 100 - 25
+    keyBoardKeys[8].width = 60
+    keyBoardKeys[8].height = 50
+  }
+}
+
+function moveFadeBox() {
+  if (gameState == 2) {
+    fadeBox.draw()
+    let fadeSpeed = 50
+    ctx.save()
+
+    fadeBox.y = -50
+    fadeBox.height = canvas.height + 50
+    if (fadeBox.width > canvas.width) {
+      fadeBox.x += fadeSpeed
+      enemyArray1 = []
+      resetGame();
+    } else {
+      fadeBox.x = -50
+      fadeBox.width += fadeSpeed
+    }
+    ctx.fillStyle = "black";
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function resetGame() {
+  player.lives = 5;
+
+  if (fadeBox.x > canvas.width + 500) {
+    gameState = 0;
+  }
+  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 5))
+  enemyArray1[0].movementSpeed = 0;
+  enemyArray1[0].special = 1;
+}
+
+
+function drawGameTitle() {
+  if (gameState == -4 || gameState == 0) {
+    drawTextWithShadow(ctx, "Don't fear the 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
   }
 }

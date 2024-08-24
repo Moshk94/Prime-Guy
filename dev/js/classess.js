@@ -1,8 +1,4 @@
-import hpBarSrc from '/imgs/r.png'
-import { clamp, getRandomArbitrary,drawText } from './helperFunctions';
-
-export const hpBarImg = new Image();
-hpBarImg.src = hpBarSrc;
+import { clamp, getRandomArbitrary, drawText } from './helperFunctions';
 
 export class GameObject {
     constructor(ctx) {
@@ -16,14 +12,15 @@ export class GameObject {
     draw() {
         this.ctx.beginPath();
         this.ctx.rect(this.x, this.y, this.width, this.height)
-        this.ctx.fill()
+        this.ctx.fill();
+
     }
 };
 
 export class PlayerClass extends GameObject {
     constructor(ctx) {
         super(ctx);
-        this.x = ctx.canvas.width * 0.25 - this.width / 2
+        this.x = ctx.canvas.width * 0.5 - this.width / 2 - 60
         this.y = ctx.canvas.height * 0.5 - this.height / 2
         this.movementSpeed = 5;
         this.attacking = 0;
@@ -40,14 +37,14 @@ export class PlayerClass extends GameObject {
         this.attY = this.y + this.height
         this.alive = 1;
         this.invincible = 0
-        this.lives = 1
+        this.lives = 5
         this.currentMathfunction = '+';
         this.power = 1;
     };
     draw() {
         super.draw();
         this.drawPlayerInfo();
-
+        if (this.lives > 0) { this.alive = 1 } //else { this.alive = 0 };
         if (this.attacking) {
             this.attack();
         } else {
@@ -105,9 +102,6 @@ export class PlayerClass extends GameObject {
     damagePlayer() {
         this.invincible = 1;
         this.lives--
-        if (this.lives <= 0) {
-            this.alive = 0
-        }
     }
 }
 
@@ -121,65 +115,52 @@ export class EnemyClass extends GameObject {
         this.x = x;
         this.healthWidth = this.width * 2;
         this.maxhealth = h;
-        this.currentHealth = h
+        this.lives = h
         this.damaged = 0;
-        this.alive = 1
+        this.alive = 1;
+        this.remainder = 0;
     };
     draw() {
-        super.draw();
-        let healthRatio = Math.abs(clamp(this.currentHealth / this.maxhealth, -1, 1))
-
-        let greenHealthOffset = 0;
-        if (this.currentHealth == 0) {
+        if (this.lives == 13) {
             this.alive = 0;
-        };
-        if (this.currentHealth < 0) {
-
-
-            greenHealthOffset = this.width * 2
-            if (this.currentHealth < 0) {
-                healthRatio *= -1
-            }
         }
+        let fontSize = 100;
+        this.ctx.save();
+        this.ctx.font = `${fontSize}px p`
+        let txt = this.lives;
+        let fM = this.ctx.measureText(txt)
+        this.width = fM.width - (fontSize / 10);
+        this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
 
-        this.imageHeight = this.healthWidth / 22.85
-        this.ctx.drawImage(hpBarImg, this.x - (this.healthWidth / 2 - this.width / 2),
-            this.y - this.width / 6, this.healthWidth, this.imageHeight);
+        this.ctx.beginPath();
+        this.ctx.rect(this.x, this.y, this.width, this.height)
+        this.ctx.fill()
 
         this.ctx.save();
-
-        this.color = `brightness(150%) hue-rotate(90deg)`;
-        this.ctx.filter = this.color;
-        this.ctx.drawImage(hpBarImg, greenHealthOffset + this.x - (this.healthWidth / 2 - this.width / 2),
-            this.y - this.width / 6, (this.healthWidth * healthRatio), this.imageHeight);
-
-        drawText(
-            this.ctx,
-            this.currentHealth,
-            this.x + (this.width / 2),
-            this.y - this.width / 6,
-            25,
-            'white'
-        )
+        this.ctx.fillStyle = "white";
+        this.ctx.fillText(txt, this.x, this.y + this.height);
         this.ctx.restore();
     }
     damage(player) {
         if (!this.damaged) {
             this.damaged = 1;
             ['+', '-', '×', '÷',]
-            // console.log(player.currentFunction)
+
             if (player.currentFunction == 0) {
-                console.log(player.power)
-                this.currentHealth += player.power
+                this.lives += player.power
             } else if (player.currentFunction == 1) {
-                this.currentHealth -= player.power
+                this.lives -= player.power
             } else if (player.currentFunction == 2) {
-                this.currentHealth *= player.power
+                this.lives *= player.power
             } else if (player.currentFunction == 3) {
-                if (this.currentHealth % player.power == 0 || this.currentHealth % player.power == -0) {
-                    this.currentHealth /= player.power
+                if (this.lives % player.power == 0 || this.lives % player.power == -0) {
+                    this.lives /= player.power
                 } else {
-                    player.lives--
+                    if (!this.special) {
+                        this.lives = Math.floor(this.lives / player.power)
+                        this.remainder = this.lives % player.power
+                        player.lives--
+                    }
                 }
             }
         }
