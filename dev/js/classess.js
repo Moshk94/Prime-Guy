@@ -1,4 +1,4 @@
-import { clamp, getRandomArbitrary, drawText } from './helperFunctions';
+import { clamp, getRandomArbitrary, drawText, rads } from './helperFunctions';
 
 export class GameObject {
     constructor(ctx) {
@@ -7,6 +7,12 @@ export class GameObject {
         this.ctx = ctx
         this.width = 50
         this.height = 50
+        this.clock = {
+            attClock: 0,
+            dmgClock: 0,
+            dt: 0,
+            s: 0,
+        };
     };
 
     draw() {
@@ -28,23 +34,19 @@ export class PlayerClass extends GameObject {
         this.circleRadius = 35;
         this.playerMathFunction = ['+', '-', '×', '÷'];
         this.currentFunction = 0;
-        this.clock = {
-            attClock: 0,
-            dmgClock: 0
-        };
         this.attDir = 3
         this.attX = this.x + this.width / 2;
         this.attY = this.y + this.height
         this.alive = 1;
         this.invincible = 0
-        this.lives = 5
+        this.lives = 1
         this.currentMathfunction = '+';
         this.power = 1;
     };
     draw() {
         super.draw();
         this.drawPlayerInfo();
-        if (this.lives > 0) { this.alive = 1 } //else { this.alive = 0 };
+        if (this.lives > 0) { this.alive = 1 } else { this.alive = 0 };
         if (this.attacking) {
             this.attack();
         } else {
@@ -119,27 +121,43 @@ export class EnemyClass extends GameObject {
         this.damaged = 0;
         this.alive = 1;
         this.remainder = 0;
+        this.shadowx = this.x;
+        this.shadowy = this.y;
+        this.angle = 0
     };
     draw() {
+        this.hover();
         if (this.lives == 13) {
             this.alive = 0;
         }
         let fontSize = 100;
         this.ctx.save();
-        this.ctx.font = `${fontSize}px p`
+        this.ctx.font = `${fontSize}px q`
         let txt = this.lives;
         let fM = this.ctx.measureText(txt)
         this.width = fM.width - (fontSize / 10);
         this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
 
+        this.ctx.save();
+        this.ctx.fillStyle = "rgba(0,0,0,0.1)";
         this.ctx.beginPath();
-        this.ctx.rect(this.x, this.y, this.width, this.height)
-        this.ctx.fill()
+        this.ctx.ellipse(this.shadowx + this.width / 2, this.shadowy + this.height * 1.6, 15, (75 - 15 * this.hoverOffset - 12), Math.PI / 2, 0, 2 * Math.PI);
+
+        this.ctx.fill();
+        this.ctx.restore();
+
+
+
 
         this.ctx.save();
-        this.ctx.fillStyle = "white";
+        this.ctx.fillStyle = "darkred";
         this.ctx.fillText(txt, this.x, this.y + this.height);
         this.ctx.restore();
+    }
+    hover() {
+        this.angle++
+        this.hoverOffset = 0.2 * Math.sin(rads(this.angle))
+        this.y -= this.hoverOffset
     }
     damage(player) {
         if (!this.damaged) {
@@ -170,14 +188,18 @@ export class EnemyClass extends GameObject {
         if (!player.alive) { followPlayer = -1 }
         if (this.y + this.height / 2 > player.y + player.height) {
             this.y -= this.movementSpeed * followPlayer
+            this.shadowy -= this.movementSpeed * followPlayer
         } else if (this.y + this.height / 2 < player.y) {
             this.y += this.movementSpeed * followPlayer
+            this.shadowy += this.movementSpeed * followPlayer
         }
 
         if (this.x + this.width / 2 > player.x + player.width) {
             this.x -= this.movementSpeed * followPlayer
+            this.shadowx -= this.movementSpeed * followPlayer
         } else if (this.x + this.width / 2 < player.x) {
             this.x += this.movementSpeed * followPlayer
+            this.shadowx += this.movementSpeed * followPlayer
         }
     }
 }

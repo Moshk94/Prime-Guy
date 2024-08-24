@@ -12,14 +12,14 @@ let enemyArray1 = []
 let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
 
 enemyHealtPool1.forEach(e => {
-  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, e))
+  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 20))
 })
 let globalClock = {
   dt: 0,
   s: 0,
 }
 enemyArray1[0].movementSpeed = 0
-let gameState = 1
+let gameState = 0
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -370,18 +370,33 @@ function moveFadeBox() {
 
 function resetGame() {
   player.lives = 5;
-
+  player.x = canvas.width/2 - player.width/2
+  player.y = canvas.height/2 - player.height/2
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
   }
-  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 5))
-  enemyArray1[0].movementSpeed = 0;
-  enemyArray1[0].special = 1;
+  
 }
 
 
 function drawGameTitle() {
   if (gameState == -4 || gameState == 0) {
     drawTextWithShadow(ctx, "Don't fear the 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
+  }
+
+  if(gameState == 0){
+    let x = canvas.width / 2 + 15
+    let y = canvas.height * 0.25
+
+    
+    drawText(ctx, "to begin", canvas.width/2 + keyBoardKeys[7].width * 0.4, canvas.width*0.56 + keyBoardKeys[7].height/2, 50, "black");
+    ctx.save();
+    keyBoardKeys[7].draw();
+    keyBoardKeys[7].width = 300
+    keyBoardKeys[7].height = 50
+    ctx.restore();
+
+    keyBoardKeys[7].x = canvas.width/2 -  keyBoardKeys[7].width
+    keyBoardKeys[7].y = canvas.width*0.56
   }
 }
