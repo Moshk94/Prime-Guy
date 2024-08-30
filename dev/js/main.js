@@ -22,14 +22,14 @@ let hiScore = 0
 let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
 
 enemyHealtPool1.forEach(e => {
-  enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 12))
+  // enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 0))
 })
 let globalClock = {
   dt: 0,
   s: 0,
 }
-enemyArray1[0].movementSpeed = 0
-let gameState = 0
+//enemyArray1[0].movementSpeed = 0
+let gameState = 3
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -41,8 +41,8 @@ let keyBoardKeys = [
   , new KeyBoardSprite(ctx, '2')
   , new KeyBoardSprite(ctx, '3')
 
-  , new KeyBoardSprite(ctx, 'Space')
-  , new KeyBoardSprite(ctx, 'Esc')
+  , new KeyBoardSprite(ctx, 'SPACE')
+  , new KeyBoardSprite(ctx, 'ESC')
 ]
 
 
@@ -176,7 +176,7 @@ function instruction1() {
     let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
-    drawText(ctx, "PRESS         TO MOVE", x, y, 50, "black");
+    drawText(ctx, "PRESS                 TO MOVE", x, y, 50, "black");
 
     for (let i = 0; i < 4; i++) {
       ctx.save();
@@ -208,7 +208,7 @@ function instruction2() {
     let x = canvas.width / 2
     let y = canvas.height * 0.25
     let pressedKeys = [];
-    drawText(ctx, "PRESS          TO CHANGE ATTACK POWER", x, y, 50, "black");
+    drawText(ctx, "PRESS                TO CHANGE ATTACK POWER", x, y, 50, "black");
 
     for (let i = 4; i < 7; i++) {
       ctx.save();
@@ -240,8 +240,8 @@ function instruction3() {
     let pressedKeys = [];
 
     drawText(ctx, "SEE THAT '0' OVER THERE?", x, y, 50, "black");
-    drawText(ctx, "GET IT TO 13 BY PRESSING", x - 15, y + 50, 50, "black");
-    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15, y + 175, 25, "black");
+    drawText(ctx, "GET IT TO 13 BY PRESSING", x, y + 55, 50, "black");
+    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15, y + 175, 20, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -250,7 +250,7 @@ function instruction3() {
     ctx.restore();
 
     keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15
-    keyBoardKeys[7].y = y + 90
+    keyBoardKeys[7].y = y + 95
 
     pressedKeys.push(keyBoardKeys[7].pressed)
 
@@ -352,12 +352,12 @@ function gameOverScreen() {
   let x = canvas.width / 2
   let y = canvas.height * 0.25
   if (player.lives <= 0) {
-    drawTextWithShadow(ctx, "Game Over!", x, y, 100, "white");
-    drawText(ctx, "    to quit", x, y + 100, 50, "black");
+    drawTextWithShadow(ctx, "GAME OVER!", x, y, 100, "white");
+    drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
     keyBoardKeys[8].draw();
     keyBoardKeys[8].x = x - 130
     keyBoardKeys[8].y = y + 100 - 25
-    keyBoardKeys[8].width = 60
+    keyBoardKeys[8].width = 90
     keyBoardKeys[8].height = 50
   }
 }
@@ -407,8 +407,8 @@ function drawGameTitle() {
     let y = canvas.height * 0.25
 
 
-    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.width * 0.56 + keyBoardKeys[7].height / 2, 50, "black");
-    drawText(ctx, `Hi-Score:${hiScore}`, 150, canvas.width * 0.14, 50, "white");
+    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.56 + keyBoardKeys[7].height * 0.6, 50, "black");
+    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.width * 0.14, 50, "white");
     ctx.save();
     keyBoardKeys[7].draw();
     keyBoardKeys[7].width = 300
@@ -416,6 +416,6 @@ function drawGameTitle() {
     ctx.restore();
 
     keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
-    keyBoardKeys[7].y = canvas.width * 0.56
+    keyBoardKeys[7].y = canvas.height * 0.56
   }
 }
