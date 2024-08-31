@@ -2,14 +2,23 @@ import { PlayerClass, EnemyClass, GameObject } from "./classess";
 import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
+import playerSpriteSrc from '/img/playerSpites.png'
+
 const ctx = document.getElementById('canvas').getContext("2d");
+
+const playerSprites = new Image()
+playerSprites.src = playerSpriteSrc;
+
 resizeCanvas();
 
-let player = new PlayerClass(ctx);
+let lastKey = ''
+let player = new PlayerClass(ctx, playerSprites);
 let fadeBox = new GameObject(ctx);
 let enemyArray1 = [];
 
+let score = 0
 let hiScore = 0
+let someTruthy;
 
 // (max 4, 13, no max - increment)
 
@@ -22,14 +31,14 @@ let hiScore = 0
 let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
 
 enemyHealtPool1.forEach(e => {
-  // enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 0))
+  // enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, 12))
 })
 let globalClock = {
   dt: 0,
   s: 0,
 }
 //enemyArray1[0].movementSpeed = 0
-let gameState = 4
+let gameState = -4
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -43,52 +52,41 @@ let keyBoardKeys = [
 
   , new KeyBoardSprite(ctx, 'SPACE')
   , new KeyBoardSprite(ctx, 'ESC')
-]
-
-
+];
 
 const keys = {
-  u: {
-    pressed: 0
-  },
-  d: {
-    pressed: 0
-  },
-  l: {
-    pressed: 0
-  },
-  r: {
-    pressed: 0
-  }
+  u: 0,
+  d: 0,
+  l: 0,
+  r: 0
 }
 
-let lastKey = ''
 window.addEventListener('keydown', (e) => {
-  if (player.alive) {
+  if (player.alive && !player.attacking) {
 
     if (e.key === 'ArrowRight') {
-      keys.r.pressed = 1;
+      keys.r = 1;
       lastKey = 'r';
       if (!player.attacking) {
         player.attDir = 2
       }
       keyBoardKeys[1].pressed = 1;
     } else if (e.key === 'ArrowLeft') {
-      keys.l.pressed = 1;
+      keys.l = 1;
       lastKey = 'l';
       keyBoardKeys[3].pressed = 1;
       if (!player.attacking) {
         player.attDir = 4
       }
     } else if (e.key === 'ArrowUp') {
-      keys.u.pressed = 1;
+      keys.u = 1;
       lastKey = 'u';
       keyBoardKeys[0].pressed = 1;
       if (!player.attacking) {
         player.attDir = 1
       }
     } else if (e.key === 'ArrowDown') {
-      keys.d.pressed = 1;
+      keys.d = 1;
       lastKey = 'd';
       keyBoardKeys[2].pressed = 1;
       if (!player.attacking) {
@@ -96,30 +94,38 @@ window.addEventListener('keydown', (e) => {
       }
     }
   } else {
-    keys.r.pressed = 0;
-    keys.l.pressed = 0;
-    keys.u.pressed = 0;
-    keys.d.pressed = 0;
+    keys.r = 0;
+    keys.l = 0;
+    keys.u = 0;
+    keys.d = 0;
   }
 });
 
 window.addEventListener('keyup', (e) => {
   if (e.key === 'ArrowRight') {
-    keys.r.pressed = 0;
+    keys.r = 0;
   } else if (e.key === 'ArrowLeft') {
-    keys.l.pressed = 0;
+    keys.l = 0;
 
   } else if (e.key === 'ArrowUp') {
-    keys.u.pressed = 0;
+    keys.u = 0;
 
   } else if (e.key === 'ArrowDown') {
-    keys.d.pressed = 0;
+    keys.d = 0;
   };
 
   if (player.alive) {
     if (e.key === ' ') {
       if (gameState == 0) {
         gameState = 1
+      }
+      if(player.attDir == 3){
+        player.frames.current = 62 * 22
+
+      } else if(player.attDir == 2 ||player.attDir == 4 ){
+        player.frames.current = 62 * 47
+      }  else if(player.attDir == 1){
+        player.frames.current = 62 * 74
       }
       player.attacking = 1
     }
@@ -143,7 +149,9 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
+
 animate();
+
 
 function animate() {
   globalClock.dt++
@@ -154,141 +162,48 @@ function animate() {
   resizeCanvas()
   requestAnimationFrame(animate);
   player.draw();
-
+  other();
   handleEnemies();
   drawUI();
+  // console.log(score)
 
 
-  if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
-  else if (keys.l.pressed && lastKey == 'l') { player.x -= player.movementSpeed }
-  else if (keys.d.pressed && lastKey == 'd') { player.y += player.movementSpeed }
-  else if (keys.u.pressed && lastKey == 'u') { player.y -= player.movementSpeed }
-  drawGameTitle();
   moveFadeBox();
-  console.log(gameState)
+// gameDebugger();
+
 }
-
-function instruction1() {
-  if (gameState == -4) {
-    let x = canvas.width / 2
-    let y = canvas.height * 0.75
-    let pressedKeys = [];
-    drawText(ctx, "PRESS                 TO MOVE", x, y, 50, "black");
-
-    for (let i = 0; i < 4; i++) {
-      ctx.save();
-      keyBoardKeys[i].draw();
-      keyBoardKeys[i].width = keyBoardKeys[i].height = 50
-      ctx.restore();
-    }
-
-    keyBoardKeys[3].x = x - keyBoardKeys[3].width * 2
-    keyBoardKeys[3].y = y
-
-    keyBoardKeys[2].x = keyBoardKeys[3].x + keyBoardKeys[3].width
-    keyBoardKeys[1].y = keyBoardKeys[2].y = keyBoardKeys[3].y
-    keyBoardKeys[1].x = keyBoardKeys[3].x + keyBoardKeys[3].width * 2
-    keyBoardKeys[0].x = keyBoardKeys[3].x + keyBoardKeys[3].width
-    keyBoardKeys[0].y = keyBoardKeys[3].y - keyBoardKeys[3].width
-
-    for (let i = 0; i < 4; i++) {
-      pressedKeys.push(keyBoardKeys[i].pressed)
-    }
-
-    if (allTrue(pressedKeys)) {
-      gameState++;
-    }
-  }
-}
-function instruction2() {
-  if (gameState == -3) {
-    let x = canvas.width / 2
-    let y = canvas.height * 0.25
-    let pressedKeys = [];
-    drawText(ctx, "PRESS                TO CHANGE ATTACK POWER", x, y, 50, "black");
-
-    for (let i = 4; i < 7; i++) {
-      ctx.save();
-      keyBoardKeys[i].draw();
-      keyBoardKeys[i].width = keyBoardKeys[i].height = 50
-      ctx.restore();
-    }
-
-    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 5.8
-    keyBoardKeys[4].y = y - keyBoardKeys[4].width / 2
-
-    keyBoardKeys[5].x = keyBoardKeys[4].x + keyBoardKeys[4].width
-    keyBoardKeys[6].y = keyBoardKeys[5].y = keyBoardKeys[4].y
-    keyBoardKeys[6].x = keyBoardKeys[4].x + keyBoardKeys[4].width * 2
-
-    for (let i = 4; i < 7; i++) {
-      pressedKeys.push(keyBoardKeys[i].pressed)
-    }
-
-    if (allTrue(pressedKeys)) {
-      gameState++
-    }
-  }
-}
-function instruction3() {
-  if (gameState == -2) {
-    let x = canvas.width / 2 + 15
-    let y = canvas.height * 0.25
-    let pressedKeys = [];
-
-    drawText(ctx, "SEE THAT '0' OVER THERE?", x, y, 50, "black");
-    drawText(ctx, "GET IT TO 13 BY PRESSING", x, y + 55, 50, "black");
-    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15, y + 175, 20, "black");
-
-    ctx.save();
-    keyBoardKeys[7].draw();
-    keyBoardKeys[7].width = 300
-    keyBoardKeys[7].height = 50
-    ctx.restore();
-
-    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15
-    keyBoardKeys[7].y = y + 95
-
-    pressedKeys.push(keyBoardKeys[7].pressed)
-
-    if (enemyArray1.length == 0) {
-      enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height * 0.75, 0))
-      enemyArray1[0].movementSpeed = 0.1;
-      enemyArray1[0].special = 1;
-    }
-
-    if (enemyArray1[0].lives == 13) {
-      globalClock.s = 0
-      gameState++
-    }
+function other(){
+  someTruthy = Object.values(keys).some(val => val === 1);
+  if(someTruthy){
+    player.moving = 1
+  } else {
+    player.moving = 0
   }
 }
 
-function instruction4() {
-  if (gameState == -1) {
-    let x = canvas.width / 2 + 15
-    let y = canvas.height * 0.25
-    if (globalClock.s < 3) {
-      drawText(ctx, "UH-OH, LOOKS LIKE IT BROUGHT MORE FRIENDS", x, y, 50, "black");
-    } if (globalClock.s < 6 && globalClock.s >= 3) {
-      drawText(ctx, "MAKE SURE YOU DONT LEAVE", x, y, 50, "black");
-      drawText(ctx, "ANY REMAINDERS WHEN DIVIDING", x, y + 50, 50, "black");
-    } if (globalClock.s > 6 && globalClock.s < 9) {
-      drawText(ctx, "GOOD LUCK!", x, y, 50, "black");
+function gameDebugger(){
+  ctx.save();
+  ctx.strokeStyle = "yellow";
+  ctx.moveTo(-5,canvas.height/2)
+  ctx.lineTo(canvas.width+5,canvas.height/2)
+  ctx.stroke();
+  ctx.restore();
 
-    } if (globalClock.s >= 9) {
-      gameState = 1
-    }
-  }
+  ctx.save();  
+  ctx.strokeStyle = "yellow";
+  ctx.moveTo(canvas.width/2,-5)
+  ctx.lineTo(canvas.width/2,canvas.height+5)
+  ctx.stroke();
+  ctx.restore();
 }
 
 function gameCollisionDetection(e) {
   if (player.attacking &&
 
     circleRectCollision(
-      player.attX,
-      player.attY,
-      player.circleRadius,
+      player.x + player.attX,
+      player.y + player.attY,
+      40,
       e.x,
       e.y,
       e.width,
@@ -297,8 +212,8 @@ function gameCollisionDetection(e) {
 
   ) {
     e.damage(player)
-    if (e.alive) {
-      player.score++
+    if (e.alive && gameState == 1) {
+      score++
     }
   }
 
@@ -329,11 +244,15 @@ function gameCollisionDetection(e) {
 
 
 function handleEnemies() {
+
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
       e.move(player)
-
+      if (keys.r && lastKey == 'r') { e.x -= player.movementSpeed }
+      else if (keys.l && lastKey == 'l') { e.x += player.movementSpeed }
+      else if (keys.d && lastKey == 'd') { e.y -= player.movementSpeed }
+      else if (keys.u && lastKey == 'u') { e.y += player.movementSpeed }
       gameCollisionDetection(e)
     };
 
@@ -345,19 +264,6 @@ function resizeCanvas() {
   ctx.canvas.height = window.innerHeight;
 }
 
-function gameOverScreen() {
-  let x = canvas.width / 2
-  let y = canvas.height * 0.25
-  if (player.lives <= 0) {
-    drawTextWithShadow(ctx, "GAME OVER!", x, y, 100, "white");
-    drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
-    keyBoardKeys[8].draw();
-    keyBoardKeys[8].x = x - 130
-    keyBoardKeys[8].y = y + 100 - 25
-    keyBoardKeys[8].width = 90
-    keyBoardKeys[8].height = 50
-  }
-}
 
 function moveFadeBox() {
   if (gameState == 2) {
@@ -385,27 +291,129 @@ function resetGame() {
   player.lives = 5;
   player.x = canvas.width / 2 - player.width / 2
   player.y = canvas.height / 2 - player.height / 2
-  player.score = 0;
-  hiScore = Math.max(player.score, hiScore)
+  score = 0;
+  hiScore = Math.max(score, hiScore)
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
   };
 }
 
-function drawGameTitle() {
-  if (gameState == -4 || gameState == 0 || fadeBox.width >= canvas.width) {
+function drawUI() {
+  let x = canvas.width / 2
+  let y = canvas.height * 0.25
+
+  if (gameState == -4) {
     drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
+    let x = canvas.width / 2
+    let y = canvas.height * 0.75
+    let pressedKeys = [];
+    drawText(ctx, "PRESS                 TO MOVE", x, y, 50, "black");
 
+    for (let i = 0; i < 4; i++) {
+      ctx.save();
+      keyBoardKeys[i].draw();
+      keyBoardKeys[i].width = keyBoardKeys[i].height = 50
+      ctx.restore();
+    }
 
+    keyBoardKeys[3].x = x - keyBoardKeys[3].width * 2
+    keyBoardKeys[3].y = y
+
+    keyBoardKeys[2].x = keyBoardKeys[3].x + keyBoardKeys[3].width
+    keyBoardKeys[1].y = keyBoardKeys[2].y = keyBoardKeys[3].y
+    keyBoardKeys[1].x = keyBoardKeys[3].x + keyBoardKeys[3].width * 2
+    keyBoardKeys[0].x = keyBoardKeys[3].x + keyBoardKeys[3].width
+    keyBoardKeys[0].y = keyBoardKeys[3].y - keyBoardKeys[3].width
+
+    for (let i = 0; i < 4; i++) {
+      pressedKeys.push(keyBoardKeys[i].pressed)
+    }
+
+    if (allTrue(pressedKeys)) {
+      gameState++;
+    }
   }
+
+  if (gameState == -3) {
+    x = canvas.width / 2
+    y = canvas.height * 0.25
+    let pressedKeys = [];
+    drawText(ctx, "PRESS                TO CHANGE ATTACK POWER", x, y, 50, "black");
+
+    for (let i = 4; i < 7; i++) {
+      ctx.save();
+      keyBoardKeys[i].draw();
+      keyBoardKeys[i].width = keyBoardKeys[i].height = 50
+      ctx.restore();
+    }
+
+    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 5.8
+    keyBoardKeys[4].y = y - keyBoardKeys[4].width / 2
+
+    keyBoardKeys[5].x = keyBoardKeys[4].x + keyBoardKeys[4].width
+    keyBoardKeys[6].y = keyBoardKeys[5].y = keyBoardKeys[4].y
+    keyBoardKeys[6].x = keyBoardKeys[4].x + keyBoardKeys[4].width * 2
+
+    for (let i = 4; i < 7; i++) {
+      pressedKeys.push(keyBoardKeys[i].pressed)
+    }
+
+    if (allTrue(pressedKeys)) {
+      gameState++
+    }
+  }
+
+  if (gameState == -2) {
+    x = canvas.width / 2 + 15
+    y = canvas.height * 0.25
+    let pressedKeys = [];
+
+    drawText(ctx, "SEE THAT '0' OVER THERE?", x, y, 50, "black");
+    drawText(ctx, "GET IT TO 13 BY PRESSING", x, y + 55, 50, "black");
+    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15, y + 175, 20, "black");
+
+    ctx.save();
+    keyBoardKeys[7].draw();
+    keyBoardKeys[7].width = 300
+    keyBoardKeys[7].height = 50
+    ctx.restore();
+
+    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15
+    keyBoardKeys[7].y = y + 95
+
+    pressedKeys.push(keyBoardKeys[7].pressed)
+
+    if (enemyArray1.length == 0) {
+      enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height * 0.75, 0))
+      enemyArray1[0].movementSpeed = 0.1;
+      enemyArray1[0].special = 1;
+    }
+
+    if (enemyArray1[0].lives == 13) {
+      globalClock.s = 0
+      gameState++
+    }
+  }
+
+  if (gameState == -1) {
+    x = canvas.width / 2 + 15
+    y = canvas.height * 0.25
+    if (globalClock.s < 3) {
+      drawText(ctx, "UH-OH, LOOKS LIKE IT BROUGHT MORE FRIENDS", x, y, 50, "black");
+    } if (globalClock.s < 6 && globalClock.s >= 3) {
+      drawText(ctx, "MAKE SURE YOU DONT LEAVE", x, y, 50, "black");
+      drawText(ctx, "ANY REMAINDERS WHEN DIVIDING", x, y + 50, 50, "black");
+    } if (globalClock.s > 6 && globalClock.s < 9) {
+      drawText(ctx, "GOOD LUCK!", x, y, 50, "black");
+
+    } if (globalClock.s >= 9) {
+      gameState = 1
+    }
+  }
+
   if (gameState == 0 || fadeBox.width >= canvas.width) {
-
+    drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
     drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.18, 50, "white");
-  }
-  if (gameState == 0) {
-    let x = canvas.width / 2 + 15;
-    let y = canvas.height * 0.25;
-
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.56 + keyBoardKeys[7].height * 0.6, 50, "black");
 
@@ -418,15 +426,18 @@ function drawGameTitle() {
     keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
     keyBoardKeys[7].y = canvas.height * 0.56
   }
-}
 
-function drawUI() {
-  instruction1();
-  instruction2();
-  instruction3();
-  instruction4();
-  gameOverScreen();
+  if (player.lives <= 0) {
+    drawTextWithShadow(ctx, "GAME OVER!", x, y, 100, "white");
+    drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
+    keyBoardKeys[8].draw();
+    keyBoardKeys[8].x = x - 130
+    keyBoardKeys[8].y = y + 100 - 25
+    keyBoardKeys[8].width = 90
+    keyBoardKeys[8].height = 50
+  }
+
   if (gameState == 3) {
-    drawText(ctx, `SCORE:${player.score}`, 150, canvas.height * 0.18, 50, "white");
+    drawText(ctx, `SCORE:${score}`, 150, canvas.height * 0.18, 50, "white");
   }
 }

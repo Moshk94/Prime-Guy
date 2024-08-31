@@ -1,12 +1,12 @@
-import { clamp, getRandomArbitrary, drawText, rads } from './helperFunctions';
+import { getRandomArbitrary, drawText, rads } from './helperFunctions';
 
 export class GameObject {
     constructor(ctx) {
-        this.x = 350;
-        this.y = 218.5;
+        // this.x = 350;
+        // this.y = 218.5;
         this.ctx = ctx
-        this.width = 50
-        this.height = 50
+        // this.width = 50
+        // this.height = 50
         this.clock = {
             attClock: 0,
             dmgClock: 0,
@@ -14,38 +14,35 @@ export class GameObject {
             s: 0,
         };
     };
-
-    draw() {
-        this.ctx.beginPath();
-        this.ctx.rect(this.x, this.y, this.width, this.height)
-        this.ctx.fill();
-
-    }
 };
 
 export class PlayerClass extends GameObject {
-    constructor(ctx) {
+    constructor(ctx, i) {
         super(ctx);
-        this.x = ctx.canvas.width * 0.5 - this.width / 2 - 60
-        this.y = ctx.canvas.height * 0.5 - this.height / 2
+        this.x = canvas.width / 2
+        this.y = canvas.height / 2
         this.movementSpeed = 5;
         this.attacking = 0;
-        this.radius = 25;
-        this.circleRadius = 35;
         this.playerMathFunction = ['+', '-', '×', '÷'];
         this.currentFunction = 0;
         this.attDir = 3
-        this.attX = this.x + this.width / 2;
-        this.attY = this.y + this.height
+        this.attX = 0;
+        this.attY = 0;
         this.alive = 1;
         this.invincible = 0
         this.lives = 5;
-        this.currentMathfunction = '+';
         this.power = 1;
-        this.score = 0;
+        this.i = i;
+        this.height = this.i.height * 0.85
+        this.width = this.i.width / 18
+        this.frames = {
+            current: 0,
+            max: 62 * 12
+        }
     };
+
     draw() {
-        super.draw();
+        this.clock.dt++
         this.drawPlayerInfo();
         if (this.lives > 0) { this.alive = 1 } else { this.alive = 0 };
         if (this.attacking) {
@@ -61,6 +58,98 @@ export class PlayerClass extends GameObject {
             this.clock.dmgClock = 0
             this.invincible = 0
         }
+
+        // this.ctx.save()
+        // this.ctx.beginPath();
+        // this.ctx.rect(this.x - this.i.width / 336, this.y - this.i.height / 2, this.i.width / 168, 50)
+        // this.ctx.fill();
+        // this.ctx.restore();
+        // console.log(this.attDir)
+        if (this.attDir == 3) {
+            // console.log(this.attacking)
+             if (this.attacking){
+                this.frames.max = 62 * 28
+                this.attY = 25
+                this.attX = 0
+             }else if (this.moving) {
+                this.frames.min = 62 * 14
+                this.frames.max = 62 * 21
+            } else {
+                this.frames.min = 0
+                this.frames.max = 62 * 12
+            }
+        }
+
+        if (this.attDir == 2 || this.attDir == 4) {
+            if (this.attacking){
+                this.frames.max = 62 * 52
+                this.attY = 0
+                this.attX = 40
+             }else if (this.moving) {
+                this.frames.min = 62 * 41
+                this.frames.max = 62 * 47
+            } else {
+                this.frames.min = 62 * 29
+                this.frames.max = 62 * 39
+            }
+        }
+
+        if (this.attDir == 1) {
+            if (this.attacking){
+                this.frames.max = 62 * 79
+                this.attY = -25
+                this.attX = 0
+             }else if (this.moving) {
+                this.frames.min = 62 * 66
+                this.frames.max = 62 * 73
+            } else {
+                this.frames.min = 62 * 54
+                this.frames.max = 62 * 64
+            }
+        }
+        this.ctx.save();
+        if(this.attDir == 4){
+            this.ctx.translate(canvas.width, 0);
+            this.ctx.scale(-1, 1);
+            this.attY = 0
+            this.attX = -40
+        }
+        this.ctx.drawImage(
+            this.i
+            ,this.frames.current
+            // , 62*23//this.frames.current
+            , 0
+            , this.i.width / 96
+            , this.i.height
+            , this.x - this.i.width / 168
+            , this.y - this.i.height
+            , this.i.width / 48
+            , this.i.height * 2);
+
+        this.ctx.restore();
+
+        // console.log(this.attDir)
+
+        // this.ctx.save()
+        // this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+        // this.ctx.beginPath();
+        // this.ctx.arc(this.x + this.attX, this.y + this.attY, 40, 0, 2 * Math.PI);
+        // this.ctx.fill();
+        // this.ctx.restore();
+
+        if (this.clock.dt % 3 == 0) {
+
+            if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
+                this.frames.current += 62
+            } else {
+                this.frames.current = this.frames.min
+                if(this.attacking){
+                    this.attacking = 0;
+                    if (this.currentFunction >= 3) { this.currentFunction = -1 }
+                    this.currentFunction++;
+                }
+            }
+        }
     }
     drawPlayerInfo() {
         drawText(this.ctx, `×${this.lives}`, 80, 30, 60, 'white')
@@ -68,36 +157,24 @@ export class PlayerClass extends GameObject {
     }
     attack() {
         //TODO: allow user to strafe when moving and attacking
-        if (this.attDir == 1) {
-            this.attY = this.y
-            this.attX = this.x + this.width / 2;
-        } else if (this.attDir == 2) {
-            this.attY = this.y + this.height / 2
-            this.attX = this.x + this.width
-        } else if (this.attDir == 4) {
-            this.attY = this.y + this.height / 2
-            this.attX = this.x
-        } else {
-            this.attX = this.x + this.width / 2;
-            this.attY = this.y + this.height
-        }
+        // if (this.attDir == 1) {
+        //     this.attY = this.y
+        //     this.attX = this.x + this.width / 2;
+        // } else if (this.attDir == 2) {
+        //     this.attY = this.y + this.height / 2
+        //     this.attX = this.x + this.width
+        // } else if (this.attDir == 4) {
+        //     this.attY = this.y + this.height / 2
+        //     this.attX = this.x
+        // } else {
+        //     this.attX = this.x + this.width / 2;
+        //     this.attY = this.y + this.height
+        // }
 
         if (this.clock.attClock < 1) {
             this.clock.attClock++
-        } else {
-            this.attacking = 0
-            if (this.currentFunction >= 3) { this.currentFunction = -1 }
-            this.currentFunction++;
         }
 
-
-        this.ctx.save()
-        this.ctx.fillStyle = "rgba(255,0,0,0.5)";
-        this.ctx.beginPath();
-        this.ctx.arc(this.attX, this.attY, this.circleRadius, 0, 2 * Math.PI);
-        this.ctx.fill();
-        this.ctx.stroke();
-        this.ctx.restore();
     }
     damagePlayer() {
         this.invincible = 1;
@@ -113,8 +190,6 @@ export class EnemyClass extends GameObject {
         this.height = this.width;
         this.y = y;
         this.x = x;
-        this.healthWidth = this.width * 2;
-        this.maxhealth = h;
         this.lives = h
         this.damaged = 0;
         this.alive = 1;
@@ -183,18 +258,18 @@ export class EnemyClass extends GameObject {
         if (!player.alive) { followPlayer = -1 }
         if (this.y + this.height / 2 > player.y + player.height) {
             this.y -= this.movementSpeed * followPlayer
-            this.shadowy -= this.movementSpeed * followPlayer
+            this.shadowy = this.y
         } else if (this.y + this.height / 2 < player.y) {
             this.y += this.movementSpeed * followPlayer
-            this.shadowy += this.movementSpeed * followPlayer
+            this.shadowy = this.y
         }
 
-        if (this.x + this.width / 2 > player.x + player.width) {
+        if (this.x + this.width / 2 > canvas.width/2) {
             this.x -= this.movementSpeed * followPlayer
-            this.shadowx -= this.movementSpeed * followPlayer
+            this.shadowx = this.x
         } else if (this.x + this.width / 2 < player.x) {
             this.x += this.movementSpeed * followPlayer
-            this.shadowx += this.movementSpeed * followPlayer
+            this.shadowx = this.x
         }
     }
 }
