@@ -21,6 +21,8 @@ export class GameObject {
     }
 };
 
+
+
 export class PlayerClass extends GameObject {
     constructor(ctx, i) {
         super(ctx);
@@ -196,7 +198,9 @@ export class PlayerClass extends GameObject {
 export class EnemyClass extends GameObject {
     constructor(ctx, x, y, h) {
         super(ctx);
-        this.movementSpeed = getRandomArbitrary(0.1, 1);
+        
+        this.speedOffset = getRandomArbitrary(-0.05, 0.1);
+        this.movementSpeed = getRandomArbitrary(0.1, 1) + this.speedOffset;
         this.width = 100;
         this.height = this.width;
         this.y = y;
