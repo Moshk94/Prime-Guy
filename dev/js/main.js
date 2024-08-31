@@ -25,7 +25,7 @@ let someTruthy;
 // let enemyHealtPool1 = randomNumbersWithFixedSum(4, 13, 1000)
 
 // enemyHealtPool1.forEach(e => {
-//   enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height / 2, e))
+  // enemyArray1.push(new EnemyClass(ctx, canvas.width / 2 + 500, canvas.height / 2, 12))
 // })
 
 let enemyHealtPool1 = randomNumbersWithFixedSum(1, -1, 10)
@@ -37,8 +37,8 @@ let globalClock = {
   dt: 0,
   s: 0,
 }
-//enemyArray1[0].movementSpeed = 0
-let gameState = -4
+
+let gameState = 0
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -119,12 +119,12 @@ window.addEventListener('keyup', (e) => {
       if (gameState == 0) {
         gameState = 1
       }
-      if(player.attDir == 3){
+      if (player.attDir == 3) {
         player.frames.current = 62 * 22
 
-      } else if(player.attDir == 2 ||player.attDir == 4 ){
+      } else if (player.attDir == 2 || player.attDir == 4) {
         player.frames.current = 62 * 47
-      }  else if(player.attDir == 1){
+      } else if (player.attDir == 1) {
         player.frames.current = 62 * 74
       }
       player.attacking = 1
@@ -165,34 +165,32 @@ function animate() {
   other();
   handleEnemies();
   drawUI();
-  // console.log(score)
-
 
   moveFadeBox();
-// gameDebugger();
-
+  // gameDebugger();
+  console.log(enemyArray1)
 }
-function other(){
+function other() {
   someTruthy = Object.values(keys).some(val => val === 1);
-  if(someTruthy){
+  if (someTruthy) {
     player.moving = 1
   } else {
     player.moving = 0
   }
 }
 
-function gameDebugger(){
+function gameDebugger() {
   ctx.save();
   ctx.strokeStyle = "yellow";
-  ctx.moveTo(-5,canvas.height/2)
-  ctx.lineTo(canvas.width+5,canvas.height/2)
+  ctx.moveTo(-5, canvas.height / 2)
+  ctx.lineTo(canvas.width + 5, canvas.height / 2)
   ctx.stroke();
   ctx.restore();
 
-  ctx.save();  
+  ctx.save();
   ctx.strokeStyle = "yellow";
-  ctx.moveTo(canvas.width/2,-5)
-  ctx.lineTo(canvas.width/2,canvas.height+5)
+  ctx.moveTo(canvas.width / 2, -5)
+  ctx.lineTo(canvas.width / 2, canvas.height + 5)
   ctx.stroke();
   ctx.restore();
 }
@@ -212,7 +210,7 @@ function gameCollisionDetection(e) {
 
   ) {
     e.damage(player)
-    if (e.alive && gameState == 1) {
+    if (!e.alive && gameState == 1) {
       score++
     }
   }
@@ -228,10 +226,10 @@ function gameCollisionDetection(e) {
 
   if (player.alive) {
     if (rectRectCollision(
-      player.x,
-      player.y,
-      player.width,
-      player.height,
+      player.x  - player.i.width / 336,
+      player.y  - player.i.height / 2,
+      player.i.width / 168,
+      50,
       e.x,
       e.y,
       e.width,
@@ -288,13 +286,12 @@ function moveFadeBox() {
 }
 
 function resetGame() {
-  player.lives = 5;
-  player.x = canvas.width / 2 - player.width / 2
-  player.y = canvas.height / 2 - player.height / 2
-  score = 0;
+  player.lives = 10;
   hiScore = Math.max(score, hiScore)
+  score = 0;
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
+    fadeBox.width = -50
   };
 }
 
@@ -437,7 +434,7 @@ function drawUI() {
     keyBoardKeys[8].height = 50
   }
 
-  if (gameState == 3) {
+  if (gameState == 1) {
     drawText(ctx, `SCORE:${score}`, 150, canvas.height * 0.18, 50, "white");
   }
 }

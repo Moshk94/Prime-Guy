@@ -2,10 +2,10 @@ import { getRandomArbitrary, drawText, rads } from './helperFunctions';
 
 export class GameObject {
     constructor(ctx) {
-        // this.x = 350;
+        this.x = -50;
         // this.y = 218.5;
         this.ctx = ctx
-        // this.width = 50
+        this.width = 0
         // this.height = 50
         this.clock = {
             attClock: 0,
@@ -14,6 +14,11 @@ export class GameObject {
             s: 0,
         };
     };
+    draw() {
+        this.ctx.beginPath();
+        this.ctx.rect(this.x, this.y, this.width, this.height)
+        this.ctx.fill();
+    }
 };
 
 export class PlayerClass extends GameObject {
@@ -28,7 +33,6 @@ export class PlayerClass extends GameObject {
         this.attDir = 3
         this.attX = 0;
         this.attY = 0;
-        this.alive = 1;
         this.invincible = 0
         this.lives = 5;
         this.power = 1;
@@ -36,7 +40,7 @@ export class PlayerClass extends GameObject {
         this.height = this.i.height * 0.85
         this.width = this.i.width / 18
         this.frames = {
-            current: 0,
+            current: 62*81,
             max: 62 * 12
         }
     };
@@ -64,8 +68,12 @@ export class PlayerClass extends GameObject {
         // this.ctx.rect(this.x - this.i.width / 336, this.y - this.i.height / 2, this.i.width / 168, 50)
         // this.ctx.fill();
         // this.ctx.restore();
-        // console.log(this.attDir)
-        if (this.attDir == 3) {
+        
+        this.ctx.save();
+        if(!this.alive){
+            this.frames.min = 62 * 81
+            this.frames.max = 62 * 93
+        } else if (this.attDir == 3) {
             // console.log(this.attacking)
              if (this.attacking){
                 this.frames.max = 62 * 28
@@ -78,9 +86,7 @@ export class PlayerClass extends GameObject {
                 this.frames.min = 0
                 this.frames.max = 62 * 12
             }
-        }
-
-        if (this.attDir == 2 || this.attDir == 4) {
+        } else if (this.attDir == 2 || this.attDir == 4) {
             if (this.attacking){
                 this.frames.max = 62 * 52
                 this.attY = 0
@@ -92,9 +98,7 @@ export class PlayerClass extends GameObject {
                 this.frames.min = 62 * 29
                 this.frames.max = 62 * 39
             }
-        }
-
-        if (this.attDir == 1) {
+        } else if (this.attDir == 1) {
             if (this.attacking){
                 this.frames.max = 62 * 79
                 this.attY = -25
@@ -106,9 +110,7 @@ export class PlayerClass extends GameObject {
                 this.frames.min = 62 * 54
                 this.frames.max = 62 * 64
             }
-        }
-        this.ctx.save();
-        if(this.attDir == 4){
+        } if(this.attDir == 4){
             this.ctx.translate(canvas.width, 0);
             this.ctx.scale(-1, 1);
             this.attY = 0
@@ -142,14 +144,19 @@ export class PlayerClass extends GameObject {
             if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
                 this.frames.current += 62
             } else {
-                this.frames.current = this.frames.min
-                if(this.attacking){
-                    this.attacking = 0;
-                    if (this.currentFunction >= 3) { this.currentFunction = -1 }
-                    this.currentFunction++;
+                
+
+                if(this.alive){
+                    this.frames.current = this.frames.min
+                    if(this.attacking){
+                        this.attacking = 0;
+                        if (this.currentFunction >= 3) { this.currentFunction = -1 }
+                        this.currentFunction++;
+                    }
+
                 }
             }
-        }
+        };
     }
     drawPlayerInfo() {
         drawText(this.ctx, `×${this.lives}`, 80, 30, 60, 'white')
@@ -179,6 +186,10 @@ export class PlayerClass extends GameObject {
     damagePlayer() {
         this.invincible = 1;
         this.lives--
+        if(this.lives <= 0){
+            
+            this.frames.current = 62 * 81
+        }
     }
 }
 
@@ -247,7 +258,6 @@ export class EnemyClass extends GameObject {
                     if (!this.special) {
                         this.lives = Math.floor(this.lives / player.power)
                         this.remainder = this.lives % player.power
-                        player.lives--
                     }
                 }
             }
