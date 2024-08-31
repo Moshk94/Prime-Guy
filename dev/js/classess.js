@@ -39,7 +39,7 @@ export class PlayerClass extends GameObject {
         this.attY = this.y + this.height
         this.alive = 1;
         this.invincible = 0
-        this.lives = 0
+        this.lives = 5;
         this.currentMathfunction = '+';
         this.power = 1;
         this.score = 0;
@@ -63,9 +63,8 @@ export class PlayerClass extends GameObject {
         }
     }
     drawPlayerInfo() {
-        drawText(this.ctx, `${this.lives}`, 80, 30, 60, 'white')
+        drawText(this.ctx, `×${this.lives}`, 80, 30, 60, 'white')
         drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, 125, 95, 60, 'white');
-        drawText(this.ctx, `SCORE:${this.score}`, 150, canvas.width * 0.14, 50, "white");
     }
     attack() {
         //TODO: allow user to strafe when moving and attacking

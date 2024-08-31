@@ -29,7 +29,7 @@ let globalClock = {
   s: 0,
 }
 //enemyArray1[0].movementSpeed = 0
-let gameState = 3
+let gameState = 4
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -118,7 +118,7 @@ window.addEventListener('keyup', (e) => {
 
   if (player.alive) {
     if (e.key === ' ') {
-      if(gameState == 0){
+      if (gameState == 0) {
         gameState = 1
       }
       player.attacking = 1
@@ -155,12 +155,8 @@ function animate() {
   requestAnimationFrame(animate);
   player.draw();
 
-  instruction1();
-  instruction2();
-  instruction3();
-  instruction4();
   handleEnemies();
-  gameOverScreen();
+  drawUI();
 
 
   if (keys.r.pressed && lastKey == 'r') { player.x += player.movementSpeed }
@@ -169,6 +165,7 @@ function animate() {
   else if (keys.u.pressed && lastKey == 'u') { player.y -= player.movementSpeed }
   drawGameTitle();
   moveFadeBox();
+  console.log(gameState)
 }
 
 function instruction1() {
@@ -392,23 +389,26 @@ function resetGame() {
   hiScore = Math.max(player.score, hiScore)
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
-  }
-
+  };
 }
 
-
 function drawGameTitle() {
-  if (gameState == -4 || gameState == 0) {
+  if (gameState == -4 || gameState == 0 || fadeBox.width >= canvas.width) {
     drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
-  }
 
+
+  }
+  if (gameState == 0 || fadeBox.width >= canvas.width) {
+
+    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.18, 50, "white");
+  }
   if (gameState == 0) {
-    let x = canvas.width / 2 + 15
-    let y = canvas.height * 0.25
+    let x = canvas.width / 2 + 15;
+    let y = canvas.height * 0.25;
 
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.56 + keyBoardKeys[7].height * 0.6, 50, "black");
-    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.width * 0.14, 50, "white");
+
     ctx.save();
     keyBoardKeys[7].draw();
     keyBoardKeys[7].width = 300
@@ -417,5 +417,16 @@ function drawGameTitle() {
 
     keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
     keyBoardKeys[7].y = canvas.height * 0.56
+  }
+}
+
+function drawUI() {
+  instruction1();
+  instruction2();
+  instruction3();
+  instruction4();
+  gameOverScreen();
+  if (gameState == 3) {
+    drawText(ctx, `SCORE:${player.score}`, 150, canvas.height * 0.18, 50, "white");
   }
 }
