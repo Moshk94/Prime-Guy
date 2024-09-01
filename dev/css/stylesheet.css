@@ -12,12 +12,12 @@
 }
 
 body {
-    background-color: #333333;
+    background-color: #658b7e;
     overflow: hidden;
 }
 
 canvas {
-    background-color: #333333;
+    background-color: #658b7e;
 }
 
 #canvasContainer {

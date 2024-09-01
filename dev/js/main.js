@@ -2,15 +2,27 @@ import { PlayerClass, EnemyClass, GameObject } from "./classess";
 import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue, getRandomInt } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
-import playerSpriteSrc from '/img/playerSpites.png'
-
-const ctx = document.getElementById('canvas').getContext("2d");
+import playerSpriteSrc from '/img/p.png';
+import bgSrc from '/img/b.png'
+import heartSrc from '/img/h.png'
 
 const playerSprites = new Image()
 playerSprites.src = playerSpriteSrc;
+
+const heartSprite = new Image()
+heartSprite.src = heartSrc;
+
+const bg = new Image()
+bg.src = bgSrc;
+
+const ctx = document.getElementById('canvas').getContext("2d");
+resizeCanvas();
+const SCALE = 10
+
+let bgx = -bg.width / 2
+let bgy = -bg.height / 2
 let globalOffsetX = 0;
 let globalOffsetY = 0;
-resizeCanvas();
 
 let lastKey = ''
 let player = new PlayerClass(ctx, playerSprites);
@@ -24,8 +36,7 @@ let increment = 100;
 let sumOfCurrentHealth = 0;
 // (max 4, 13, no max - increment)
 
-// let enemyHealtPool1 = randomNumbersWithFixedSum(4, 13, increment)
-let enemyHealtPool1 = [12]
+let enemyHealtPool1 = [0]
 
 
 let globalClock = {
@@ -65,7 +76,9 @@ window.addEventListener('keydown', (e) => {
       if (!player.attacking) {
         player.attDir = 2
       }
-      globalOffsetX-=player.movementSpeed
+
+
+
       keyBoardKeys[1].pressed = 1;
     } else if (e.key === 'ArrowLeft') {
       keys.l = 1;
@@ -74,7 +87,7 @@ window.addEventListener('keydown', (e) => {
       if (!player.attacking) {
         player.attDir = 4
       }
-      globalOffsetX+=player.movementSpeed
+
     } else if (e.key === 'ArrowUp') {
       keys.u = 1;
       lastKey = 'u';
@@ -82,7 +95,7 @@ window.addEventListener('keydown', (e) => {
       if (!player.attacking) {
         player.attDir = 1
       }
-      globalOffsetY+=player.movementSpeed
+
     } else if (e.key === 'ArrowDown') {
       keys.d = 1;
       lastKey = 'd';
@@ -90,7 +103,7 @@ window.addEventListener('keydown', (e) => {
       if (!player.attacking) {
         player.attDir = 3
       }
-      globalOffsetY-=player.movementSpeed
+
     }
   } else {
     keys.r = 0;
@@ -149,9 +162,7 @@ window.addEventListener('keyup', (e) => {
   }
 });
 
-
 animate();
-
 
 function animate() {
   globalClock.dt++
@@ -159,15 +170,37 @@ function animate() {
     globalClock.s++
   }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  resizeCanvas()
+  resizeCanvas();
   requestAnimationFrame(animate);
+
+  ctx.imageSmoothingEnabled = false;
+
+
+
+  handleBg();
   player.draw();
+  player.drawPlayerInfo(heartSprite)
   other();
   handleEnemies();
   drawUI();
   spawnEnemies();
   moveFadeBox();
+
   // gameDebugger();
+}
+
+function handleBg() {
+  ctx.save();
+  ctx.scale(SCALE, SCALE)
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
+  ctx.restore();
+
+  if (keys.r && lastKey == 'r' && bgx > -229) { bgx -= player.movementSpeed / SCALE; }
+  else if (keys.l && lastKey == 'l' && bgx < -27) { bgx += player.movementSpeed / SCALE; }
+  else if (keys.d && lastKey == 'd' && bgy > -114) { bgy -= player.movementSpeed / SCALE; }
+  else if (keys.u && lastKey == 'u' && bgy < -22) { bgy += player.movementSpeed / SCALE; }
+
 }
 function other() {
   someTruthy = Object.values(keys).some(val => val === 1);
@@ -192,6 +225,7 @@ function gameDebugger() {
   ctx.lineTo(canvas.width / 2, canvas.height + 5)
   ctx.stroke();
   ctx.restore();
+
 }
 
 function gameCollisionDetection(e) {
@@ -209,6 +243,7 @@ function gameCollisionDetection(e) {
 
   ) {
     e.damage(player)
+    keyBoardKeys[7].pressed = 1
     if (!e.alive && gameState == 1) {
       score++
     }
@@ -219,7 +254,6 @@ function gameCollisionDetection(e) {
   }
 
   if (e.remainder != 0) {
-    // let newSpeed = Math.max(e.movementSpeed-0.05,0.1)
     enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder))
     e.remainder = 0
   }
@@ -246,10 +280,10 @@ function handleEnemies() {
     if (e.alive) {
       e.draw();
       e.move(player)
-      if (keys.r && lastKey == 'r') { e.x -= player.movementSpeed;}
-      else if (keys.l && lastKey == 'l') { e.x += player.movementSpeed;}
-      else if (keys.d && lastKey == 'd') { e.y -= player.movementSpeed;}
-      else if (keys.u && lastKey == 'u') { e.y += player.movementSpeed;}
+      if (keys.r && lastKey == 'r'  && bgx > -229) { e.x -= player.movementSpeed; }
+      else if (keys.l && lastKey == 'l' && bgx < -27) { e.x += player.movementSpeed; }
+      else if (keys.d && lastKey == 'd' && bgy > -114) { e.y -= player.movementSpeed; }
+      else if (keys.u && lastKey == 'u'  && bgy < -22) { e.y += player.movementSpeed; }
       gameCollisionDetection(e)
     };
 
@@ -289,7 +323,8 @@ function resetGame() {
   hiScore = Math.max(score, hiScore)
   score = 0;
   increment = 100;
-  enemyHealtPool1 = randomNumbersWithFixedSum(4, 13, increment)
+  keyBoardKeys[7].pressed = 0
+  enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment)
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
     fadeBox.width = -50
@@ -299,13 +334,13 @@ function resetGame() {
 function drawUI() {
   let x = canvas.width / 2
   let y = canvas.height * 0.25
-  
+
   if (gameState == -4) {
-    drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2  + globalOffsetX, canvas.height * 0.25  + globalOffsetY, 100, "white");
+    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod");
     let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
-    drawText(ctx, "PRESS                 TO MOVE", x + globalOffsetX, y +  + globalOffsetY, 50, "black");
+    drawText(ctx, "PRESS                 TO MOVE", x + globalOffsetX, y + + globalOffsetY, 50, "black");
 
     for (let i = 0; i < 4; i++) {
       ctx.save();
@@ -314,7 +349,7 @@ function drawUI() {
       ctx.restore();
     }
 
-    keyBoardKeys[3].x = x - keyBoardKeys[3].width * 2  + globalOffsetX
+    keyBoardKeys[3].x = x - keyBoardKeys[3].width * 2 + globalOffsetX
     keyBoardKeys[3].y = y + globalOffsetY
 
     keyBoardKeys[2].x = keyBoardKeys[3].x + keyBoardKeys[3].width
@@ -332,7 +367,7 @@ function drawUI() {
     }
   }
 
-  if (gameState == -3) {
+  if (gameState == -2) {
     x = canvas.width / 2
     y = canvas.height * 0.25
     let pressedKeys = [];
@@ -345,8 +380,8 @@ function drawUI() {
       ctx.restore();
     }
 
-    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 5.8  + globalOffsetX
-    keyBoardKeys[4].y = y - keyBoardKeys[4].width / 2  + globalOffsetY
+    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 5.8 + globalOffsetX
+    keyBoardKeys[4].y = y - keyBoardKeys[4].width / 2 + globalOffsetY
 
     keyBoardKeys[5].x = keyBoardKeys[4].x + keyBoardKeys[4].width
     keyBoardKeys[6].y = keyBoardKeys[5].y = keyBoardKeys[4].y
@@ -361,13 +396,12 @@ function drawUI() {
     }
   }
 
-  if (gameState == -2) {
+  if (gameState == -3) {
     x = canvas.width / 2 + 15
     y = canvas.height * 0.10
-    let pressedKeys = [];
 
-    drawText(ctx, "SEE THAT '0' OVER THERE?", x  + globalOffsetX, y + globalOffsetY, 50, "black");
-    drawText(ctx, "GET IT TO 13 BY PRESSING", x + globalOffsetX, y + 55 + globalOffsetY, 50, "black");
+    drawText(ctx, "SEE THAT '0' OVER THERE?", x + globalOffsetX, y + globalOffsetY, 50, "black");
+    drawText(ctx, "ATTACK IT BY PRESSING", x + globalOffsetX, y + 55 + globalOffsetY, 50, "black");
     drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15 + globalOffsetX, y + 175 + globalOffsetY, 20, "black");
 
     ctx.save();
@@ -376,10 +410,8 @@ function drawUI() {
     keyBoardKeys[7].height = 50
     ctx.restore();
 
-    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15  + globalOffsetX
-    keyBoardKeys[7].y = y + 95  + globalOffsetY
-
-    pressedKeys.push(keyBoardKeys[7].pressed)
+    keyBoardKeys[7].x = x - keyBoardKeys[7].width * 0.5 - 15 + globalOffsetX
+    keyBoardKeys[7].y = y + 95 + globalOffsetY
 
     if (enemyArray1.length == 0) {
       enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height * 0.75, 0))
@@ -387,7 +419,7 @@ function drawUI() {
       enemyArray1[0].special = 1;
     }
 
-    if (enemyArray1[0].lives == 13) {
+    if (keyBoardKeys[7].pressed) {
       globalClock.s = 0
       gameState++
     }
@@ -410,7 +442,7 @@ function drawUI() {
   }
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
-    drawTextWithShadow(ctx, "DON'T FEAR THE 13", canvas.width / 2, canvas.height * 0.25, 100, "white");
+    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2, canvas.height * 0.25, 100, "white");
     drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.18, 50, "white");
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.56 + keyBoardKeys[7].height * 0.6, 50, "black");
@@ -463,17 +495,17 @@ function beginGame() {
 
 function spawnEnemies() {
   if (gameState == 1) {
-    sumOfCurrentHealth = 0 
-    
+    sumOfCurrentHealth = 0
+
     for (let i = 0; i < enemyArray1.length; i++) {
       sumOfCurrentHealth += Math.abs(enemyArray1[i].lives - 13);
-      
+
       if (sumOfCurrentHealth > 0) { break }
     }
 
     if (sumOfCurrentHealth == 0) {
       increment += 10;
-      enemyHealtPool1 = randomNumbersWithFixedSum(4, 13, increment);
+      enemyHealtPool1 = randomNumbersWithFixedSum(1, 14, increment);
       enemyArray1 = [];
       beginGame();
     }

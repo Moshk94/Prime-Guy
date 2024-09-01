@@ -21,8 +21,6 @@ export class GameObject {
     }
 };
 
-
-
 export class PlayerClass extends GameObject {
     constructor(ctx, i) {
         super(ctx);
@@ -42,17 +40,16 @@ export class PlayerClass extends GameObject {
         this.height = this.i.height * 0.85
         this.width = this.i.width / 18
         this.frames = {
-            current: 62*81,
+            current: 62 * 81,
             max: 62 * 12
         }
     };
 
     draw() {
         this.clock.dt++
-        this.drawPlayerInfo();
         if (this.lives > 0) { this.alive = 1 } else { this.alive = 0 };
-        if (this.attacking) {
-            this.attack();
+        if (this.attacking && this.clock.attClock < 1) {
+            this.clock.attClock++
         } else {
             this.clock.attClock = 0
         }
@@ -70,18 +67,18 @@ export class PlayerClass extends GameObject {
         // this.ctx.rect(this.x - this.i.width / 336, this.y - this.i.height / 2, this.i.width / 168, 50)
         // this.ctx.fill();
         // this.ctx.restore();
-        
+
         this.ctx.save();
-        if(!this.alive){
+        if (!this.alive) {
             this.frames.min = 62 * 81
             this.frames.max = 62 * 93
         } else if (this.attDir == 3) {
             // console.log(this.attacking)
-             if (this.attacking){
+            if (this.attacking) {
                 this.frames.max = 62 * 28
-                this.attY = 25
+                this.attY = 50
                 this.attX = 0
-             }else if (this.moving) {
+            } else if (this.moving) {
                 this.frames.min = 62 * 14
                 this.frames.max = 62 * 21
             } else {
@@ -89,11 +86,11 @@ export class PlayerClass extends GameObject {
                 this.frames.max = 62 * 12
             }
         } else if (this.attDir == 2 || this.attDir == 4) {
-            if (this.attacking){
+            if (this.attacking) {
                 this.frames.max = 62 * 52
                 this.attY = 0
-                this.attX = 40
-             }else if (this.moving) {
+                this.attX = 80
+            } else if (this.moving) {
                 this.frames.min = 62 * 41
                 this.frames.max = 62 * 47
             } else {
@@ -101,43 +98,50 @@ export class PlayerClass extends GameObject {
                 this.frames.max = 62 * 39
             }
         } else if (this.attDir == 1) {
-            if (this.attacking){
+            if (this.attacking) {
                 this.frames.max = 62 * 79
-                this.attY = -25
+                this.attY = -50
                 this.attX = 0
-             }else if (this.moving) {
+            } else if (this.moving) {
                 this.frames.min = 62 * 66
                 this.frames.max = 62 * 73
             } else {
                 this.frames.min = 62 * 54
                 this.frames.max = 62 * 64
             }
-        } if(this.attDir == 4){
+        } if (this.attDir == 4) {
             this.ctx.translate(canvas.width, 0);
-            this.ctx.scale(-1, 1);
+
+            this.ctx.scale(-2, 2);
             this.attY = 0
-            this.attX = -40
+            this.attX = -80
+        } else {
+            this.ctx.scale(2, 2);
+
+        }
+        if (this.clock.dmgClock > 0 && this.clock.dmgClock < 15 && this.alive) {
+            this.ctx.filter = `brightness(20)`;
+        }
+        if (this.clock.dmgClock >= 15 && this.invincible && this.alive) {
+            this.ctx.filter = `opacity(0.5)`;
         }
         this.ctx.drawImage(
             this.i
-            ,this.frames.current
-            // , 62*23//this.frames.current
+            , this.frames.current
             , 0
             , this.i.width / 96
             , this.i.height
-            , this.x - this.i.width / 168
-            , this.y - this.i.height
+            , canvas.width / 4 - 36
+            , canvas.height / 4 - 54
             , this.i.width / 48
             , this.i.height * 2);
 
         this.ctx.restore();
 
-        // console.log(this.attDir)
-
         // this.ctx.save()
         // this.ctx.fillStyle = "rgba(255,0,0,0.5)";
         // this.ctx.beginPath();
-        // this.ctx.arc(this.x + this.attX, this.y + this.attY, 40, 0, 2 * Math.PI);
+        // this.ctx.arc(this.x + this.attX, this.y + this.attY, 80, 0, 2 * Math.PI);
         // this.ctx.fill();
         // this.ctx.restore();
 
@@ -146,11 +150,11 @@ export class PlayerClass extends GameObject {
             if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
                 this.frames.current += 62
             } else {
-                
 
-                if(this.alive){
+
+                if (this.alive) {
                     this.frames.current = this.frames.min
-                    if(this.attacking){
+                    if (this.attacking) {
                         this.attacking = 0;
                         if (this.currentFunction >= 3) { this.currentFunction = -1 }
                         this.currentFunction++;
@@ -160,45 +164,27 @@ export class PlayerClass extends GameObject {
             }
         };
     }
-    drawPlayerInfo() {
-        drawText(this.ctx, `×${this.lives}`, 80, 30, 60, 'white')
-        drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, 125, 95, 60, 'white');
-    }
-    attack() {
-        //TODO: allow user to strafe when moving and attacking
-        // if (this.attDir == 1) {
-        //     this.attY = this.y
-        //     this.attX = this.x + this.width / 2;
-        // } else if (this.attDir == 2) {
-        //     this.attY = this.y + this.height / 2
-        //     this.attX = this.x + this.width
-        // } else if (this.attDir == 4) {
-        //     this.attY = this.y + this.height / 2
-        //     this.attX = this.x
-        // } else {
-        //     this.attX = this.x + this.width / 2;
-        //     this.attY = this.y + this.height
-        // }
-
-        if (this.clock.attClock < 1) {
-            this.clock.attClock++
-        }
-
+    drawPlayerInfo(s) {
+        let x = 3;
+        let y = 3;
+        this.ctx.save();
+        this.ctx.scale(5, 5)
+        this.ctx.drawImage(s, x, y);
+        this.ctx.restore()
+        drawText(this.ctx, `×${this.lives}`, x + s.width * 8.5, y + s.height * 3.9, 60, 'white')
+        drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, this.x * 0.995, this.y - this.height * 1.3, 25, 'white');
     }
     damagePlayer() {
         this.invincible = 1;
         this.lives--
-        if(this.lives <= 0){
-            
-            this.frames.current = 62 * 81
-        }
+        if (this.lives <= 0) {this.frames.current = 62 * 81}
     }
 }
 
 export class EnemyClass extends GameObject {
     constructor(ctx, x, y, h) {
         super(ctx);
-        
+
         this.speedOffset = getRandomArbitrary(-0.05, 0.1);
         this.movementSpeed = getRandomArbitrary(0.1, 1) + this.speedOffset;
         this.width = 100;
@@ -209,15 +195,11 @@ export class EnemyClass extends GameObject {
         this.damaged = 0;
         this.alive = 1;
         this.remainder = 0;
-        this.shadowx = this.x;
-        this.shadowy = this.y;
         this.angle = 0
     };
     draw() {
         this.hover();
-        if (this.lives == 13) {
-            this.alive = 0;
-        }
+        if (this.lives == 13) { this.alive = 0; }
         let fontSize = 100;
         this.ctx.save();
         this.ctx.font = `${fontSize}px q`
@@ -227,14 +209,7 @@ export class EnemyClass extends GameObject {
         this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
 
         this.ctx.save();
-        this.ctx.fillStyle = "rgba(0,0,0,0.1)";
-        this.ctx.beginPath();
-        this.ctx.ellipse(this.shadowx + this.width / 2, this.shadowy + this.height * 1.6, 15, (75 - 15 * this.hoverOffset - 12), Math.PI / 2, 0, 2 * Math.PI);
-
-        this.ctx.fill();
-        this.ctx.restore();
-
-        this.ctx.save();
+        this.ctx.filter = `drop-shadow(-9px 100px 20px #000000)`;
         this.ctx.fillStyle = "darkred";
         this.ctx.fillText(txt, this.x, this.y + this.height);
         this.ctx.restore();
@@ -271,19 +246,15 @@ export class EnemyClass extends GameObject {
         let followPlayer = 1
         if (!player.alive) { followPlayer = -1 }
         if (this.y + this.height / 2 > player.y + player.height) {
-            this.y -= this.movementSpeed * followPlayer
-            this.shadowy = this.y
+            this.y -= this.movementSpeed * followPlayer;
         } else if (this.y + this.height / 2 < player.y) {
-            this.y += this.movementSpeed * followPlayer
-            this.shadowy = this.y
-        }
+            this.y += this.movementSpeed * followPlayer;
+        };
 
-        if (this.x + this.width / 2 > canvas.width/2) {
-            this.x -= this.movementSpeed * followPlayer
-            this.shadowx = this.x
+        if (this.x + this.width / 2 > canvas.width / 2) {
+            this.x -= this.movementSpeed * followPlayer;
         } else if (this.x + this.width / 2 < player.x) {
-            this.x += this.movementSpeed * followPlayer
-            this.shadowx = this.x
-        }
+            this.x += this.movementSpeed * followPlayer;
+        };
     }
 }
