@@ -30,20 +30,21 @@ let fadeBox = new GameObject(ctx);
 let enemyArray1 = [];
 
 let score = 0
+let trueScore = 0
 let hiScore = 0
 let someTruthy;
 let increment = 100;
 let sumOfCurrentHealth = 0;
 // (max 4, 13, no max - increment)
 
-let enemyHealtPool1 = [0]
+let enemyHealtPool1 = [1]
 
 let globalClock = {
   dt: 0,
   s: 0,
 }
 
-let gameState = 50
+let gameState = 2
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -141,16 +142,13 @@ window.addEventListener('keyup', (e) => {
     }
 
     if (e.key === '1') {
-      player.power = 1
-      keyBoardKeys[4].pressed = 1;
+      player.power = 1;
     }
     if (e.key === '2') {
-      player.power = 2
-      keyBoardKeys[5].pressed = 1;
+      player.power = 2;
     }
     if (e.key === '3') {
-      player.power = 5
-      keyBoardKeys[6].pressed = 1;
+      player.power = 5;
     }
   } else {
     if (e.key == "Escape") {
@@ -162,16 +160,16 @@ window.addEventListener('keyup', (e) => {
 animate();
 
 function animate() {
+  requestAnimationFrame(animate);
+  resizeCanvas();
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.imageSmoothingEnabled = false;
+
   globalClock.dt++
   if (globalClock.dt % 60 == 0) {
     globalClock.s++
   }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  resizeCanvas();
-  requestAnimationFrame(animate);
-
-  ctx.imageSmoothingEnabled = false;
-
 
 
   handleBg();
@@ -183,7 +181,7 @@ function animate() {
   spawnEnemies();
   moveFadeBox();
 
-  gameDebugger();
+  //gameDebugger();
 }
 
 function handleBg() {
@@ -196,17 +194,17 @@ function handleBg() {
   if (keys.r && lastKey == 'r' && bgx > -229) { bgx -= player.movementSpeed / SCALE; }
   else if (keys.l && lastKey == 'l' && bgx < -27) { bgx += player.movementSpeed / SCALE; }
   else if (keys.d && lastKey == 'd' && bgy > -114) { bgy -= player.movementSpeed / SCALE; }
-  else if (keys.u && lastKey == 'u' && bgy < -22) { bgy += player.movementSpeed / SCALE; }
+  else if (keys.u && lastKey == 'u' && bgy < -22) { bgy += player.movementSpeed / SCALE; };
+};
 
-}
 function other() {
   someTruthy = Object.values(keys).some(val => val === 1);
   if (someTruthy) {
     player.moving = 1
   } else {
     player.moving = 0
-  }
-}
+  };
+};
 
 function gameDebugger() {
   ctx.save();
@@ -239,19 +237,14 @@ function gameDebugger() {
 }
 
 function gameCollisionDetection(e) {
-  if (player.attacking &&
-
-    circleRectCollision(
-      player.x + player.attX,
-      player.y + player.attY,
-      40,
-      e.x,
-      e.y,
-      e.width,
-      e.height
-    )
-
-  ) {
+  if (player.attacking && circleRectCollision(
+    player.x + player.attX,
+    player.y + player.attY,
+    40,
+    e.x,
+    e.y,
+    e.width,
+    e.height)) {
     e.damage(player)
     keyBoardKeys[7].pressed = 1
     if (!e.alive && gameState == 1) {
@@ -261,12 +254,12 @@ function gameCollisionDetection(e) {
 
   if (!player.attacking) {
     e.damaged = 0;
-  }
+  };
 
   if (e.remainder != 0) {
-    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder))
-    e.remainder = 0
-  }
+    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder));
+    e.remainder = 0;
+  };
 
   if (player.alive) {
     if (rectRectCollision(
@@ -280,12 +273,11 @@ function gameCollisionDetection(e) {
       e.height
     ) && !player.invincible && gameState == 1) {
       player.damagePlayer();
-    }
-  }
-}
+    };
+  };
+};
 
 function handleEnemies() {
-
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
@@ -293,34 +285,33 @@ function handleEnemies() {
       if (keys.r && lastKey == 'r' && bgx > -229) { e.x -= player.movementSpeed; }
       else if (keys.l && lastKey == 'l' && bgx < -27) { e.x += player.movementSpeed; }
       else if (keys.d && lastKey == 'd' && bgy > -114) { e.y -= player.movementSpeed; }
-      else if (keys.u && lastKey == 'u' && bgy < -22) { e.y += player.movementSpeed; }
-      gameCollisionDetection(e)
+      else if (keys.u && lastKey == 'u' && bgy < -22) { e.y += player.movementSpeed; };
+      gameCollisionDetection(e);
     };
-
   });
-}
+};
 
 function resizeCanvas() {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
-}
+};
 
 
 function moveFadeBox() {
   if (gameState == 2) {
-    fadeBox.draw()
-    let fadeSpeed = 50
-    ctx.save()
+    fadeBox.draw();
+    let fadeSpeed = 50;
+    ctx.save();
 
-    fadeBox.y = -50
-    fadeBox.height = canvas.height + 50
+    fadeBox.y = -50;
+    fadeBox.height = canvas.height + 50;
     if (fadeBox.width > canvas.width) {
-      fadeBox.x += fadeSpeed
-      enemyArray1 = []
+      fadeBox.x += fadeSpeed;
+      enemyArray1 = [];
       resetGame();
     } else {
-      fadeBox.x = -50
-      fadeBox.width += fadeSpeed
+      fadeBox.x = -50;
+      fadeBox.width += fadeSpeed;
     }
     ctx.fillStyle = "black";
     ctx.fill();
@@ -330,11 +321,11 @@ function moveFadeBox() {
 
 function resetGame() {
   player.lives = 5;
-  hiScore = Math.max(score, hiScore)
+  hiScore = Math.max(score, hiScore);
   score = 0;
   increment = 100;
-  keyBoardKeys[7].pressed = 0
-  enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment)
+  keyBoardKeys[7].pressed = 0;
+  enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
     fadeBox.width = -50
@@ -377,35 +368,6 @@ function drawUI() {
     }
   }
 
-  if (gameState == -2) {
-    x = canvas.width / 2
-    y = canvas.height * 0.25
-    let pressedKeys = [];
-    drawText(ctx, "PRESS                TO CHANGE ATTACK POWER", x + globalOffsetX, y + globalOffsetY, 50, "black");
-
-    for (let i = 4; i < 7; i++) {
-      ctx.save();
-      keyBoardKeys[i].draw();
-      keyBoardKeys[i].width = keyBoardKeys[i].height = 50
-      ctx.restore();
-    }
-
-    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 5.8 + globalOffsetX
-    keyBoardKeys[4].y = y - keyBoardKeys[4].width / 2 + globalOffsetY
-
-    keyBoardKeys[5].x = keyBoardKeys[4].x + keyBoardKeys[4].width
-    keyBoardKeys[6].y = keyBoardKeys[5].y = keyBoardKeys[4].y
-    keyBoardKeys[6].x = keyBoardKeys[4].x + keyBoardKeys[4].width * 2
-
-    for (let i = 4; i < 7; i++) {
-      pressedKeys.push(keyBoardKeys[i].pressed)
-    }
-
-    if (allTrue(pressedKeys)) {
-      gameState++
-    }
-  }
-
   if (gameState == -3) {
     x = canvas.width / 2 + 15
     y = canvas.height * 0.10
@@ -435,6 +397,33 @@ function drawUI() {
     }
   }
 
+  if (gameState == -2) {
+    x = canvas.width / 2
+    y = canvas.height * 0.25
+    let pressedKeys = [];
+    drawText(ctx, "GET THAT NUMBER TO 13!", x +globalOffsetX, y + globalOffsetY, 50, "black");
+    drawText(ctx, "USE                TO CHANGE YOUR ATTACK POWER", x -15, y + 60, 35, "black");
+
+    for (let i = 4; i < 7; i++) {
+      ctx.save();
+      keyBoardKeys[i].draw();
+      keyBoardKeys[i].width = keyBoardKeys[i].height = 35
+      ctx.restore();
+    }
+
+    keyBoardKeys[4].x = x - keyBoardKeys[4].width * 8 + globalOffsetX
+    keyBoardKeys[4].y = y + keyBoardKeys[4].width * 1.1 + globalOffsetY
+
+    keyBoardKeys[5].x = keyBoardKeys[4].x + keyBoardKeys[4].width;
+    keyBoardKeys[6].y = keyBoardKeys[5].y = keyBoardKeys[4].y;
+    keyBoardKeys[6].x = keyBoardKeys[4].x + keyBoardKeys[4].width * 2;
+
+    if (enemyArray1[0].lives == 13) {
+      globalClock.s = 0
+      gameState++
+    }
+  }
+
   if (gameState == -1) {
     x = canvas.width / 2 + 15
     y = canvas.height * 0.25
@@ -445,17 +434,16 @@ function drawUI() {
       drawText(ctx, "ANY REMAINDERS WHEN DIVIDING", x, y + 50, 50, "black");
     } if (globalClock.s > 6 && globalClock.s < 9) {
       drawText(ctx, "GOOD LUCK!", x, y, 50, "black");
-
     } if (globalClock.s >= 9) {
-      gameState = 1
+      gameState = 1;
     }
   }
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
     drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2, canvas.height * 0.25, 100, "white");
-    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.18, 50, "white");
+    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.05, 50, "white");
 
-    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.56 + keyBoardKeys[7].height * 0.6, 50, "black");
+    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6, 50, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -464,7 +452,7 @@ function drawUI() {
     ctx.restore();
 
     keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
-    keyBoardKeys[7].y = canvas.height * 0.56
+    keyBoardKeys[7].y = canvas.height * 0.70
   }
 
   if (player.lives <= 0) {
@@ -478,7 +466,7 @@ function drawUI() {
   }
 
   if (gameState == 1) {
-    drawText(ctx, `SCORE:${score}`, 150, canvas.height * 0.18, 50, "white");
+    drawText(ctx, `SCORE:${score}`, 100, canvas.height * 0.05, 50, "white");
   }
 }
 
@@ -501,6 +489,8 @@ function beginGame() {
     }
     enemyArray1.push(new EnemyClass(ctx, x, y, e))
   })
+
+  trueScore+=enemyArray1.length();
 }
 
 function spawnEnemies() {
@@ -517,6 +507,10 @@ function spawnEnemies() {
       increment += 10;
       enemyHealtPool1 = randomNumbersWithFixedSum(1, 14, increment);
       enemyArray1 = [];
+      
+      if(score < trueScore){
+        score = trueScore;
+      }
       beginGame();
     }
   }
