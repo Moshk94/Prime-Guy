@@ -3,10 +3,8 @@ import { getRandomArbitrary, drawText, rads } from './helperFunctions';
 export class GameObject {
     constructor(ctx) {
         this.x = -50;
-        // this.y = 218.5;
         this.ctx = ctx
-        this.width = 0
-        // this.height = 50
+        this.width = 0;
         this.clock = {
             attClock: 0,
             dmgClock: 0,
@@ -18,7 +16,7 @@ export class GameObject {
         this.ctx.beginPath();
         this.ctx.rect(this.x, this.y, this.width, this.height)
         this.ctx.fill();
-    }
+    };
 };
 
 export class PlayerClass extends GameObject {
@@ -43,6 +41,7 @@ export class PlayerClass extends GameObject {
             current: 62 * 81,
             max: 62 * 12
         }
+        this.x2 = 0;
     };
 
     draw() {
@@ -146,12 +145,9 @@ export class PlayerClass extends GameObject {
         // this.ctx.restore();
 
         if (this.clock.dt % 3 == 0) {
-
             if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
                 this.frames.current += 62
             } else {
-
-
                 if (this.alive) {
                     this.frames.current = this.frames.min
                     if (this.attacking) {
@@ -159,25 +155,30 @@ export class PlayerClass extends GameObject {
                         if (this.currentFunction >= 3) { this.currentFunction = -1 }
                         this.currentFunction++;
                     }
-
                 }
             }
         };
     }
     drawPlayerInfo(s) {
-        let x = 3;
-        let y = 3;
-        this.ctx.save();
-        this.ctx.scale(5, 5)
-        this.ctx.drawImage(s, x, y);
-        this.ctx.restore()
-        drawText(this.ctx, `×${this.lives}`, x + s.width * 8.5, y + s.height * 3.9, 60, 'white')
+        if (this.attDir == 4) {
+            this.x2 = 100
+        } else if (this.attDir == 2){
+            this.x2 = 0
+        }
+        for (let i = 5; i > 0; i--) {
+            this.ctx.save();
+            if (!(5 - this.lives < i)) {
+                this.ctx.filter = `brightness(0)`;
+            }
+            this.ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.3 * i) - 55);
+            this.ctx.restore();
+        }
         drawText(this.ctx, `${this.playerMathFunction[this.currentFunction]}${this.power}`, this.x * 0.995, this.y - this.height * 1.3, 25, 'white');
     }
     damagePlayer() {
         this.invincible = 1;
         this.lives--
-        if (this.lives <= 0) {this.frames.current = 62 * 81}
+        if (this.lives <= 0) { this.frames.current = 62 * 81 }
     }
 }
 

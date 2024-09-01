@@ -38,13 +38,12 @@ let sumOfCurrentHealth = 0;
 
 let enemyHealtPool1 = [0]
 
-
 let globalClock = {
   dt: 0,
   s: 0,
 }
 
-let gameState = -4
+let gameState = 50
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -76,8 +75,6 @@ window.addEventListener('keydown', (e) => {
       if (!player.attacking) {
         player.attDir = 2
       }
-
-
 
       keyBoardKeys[1].pressed = 1;
     } else if (e.key === 'ArrowLeft') {
