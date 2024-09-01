@@ -61,18 +61,11 @@ export class PlayerClass extends GameObject {
             this.invincible = 0
         }
 
-        // this.ctx.save()
-        // this.ctx.beginPath();
-        // this.ctx.rect(this.x - this.i.width / 336, this.y - this.i.height / 2, this.i.width / 168, 50)
-        // this.ctx.fill();
-        // this.ctx.restore();
-
         this.ctx.save();
         if (!this.alive) {
             this.frames.min = 62 * 81
             this.frames.max = 62 * 93
         } else if (this.attDir == 3) {
-            // console.log(this.attacking)
             if (this.attacking) {
                 this.frames.max = 62 * 28
                 this.attY = 50
@@ -137,13 +130,6 @@ export class PlayerClass extends GameObject {
 
         this.ctx.restore();
 
-        // this.ctx.save()
-        // this.ctx.fillStyle = "rgba(255,0,0,0.5)";
-        // this.ctx.beginPath();
-        // this.ctx.arc(this.x + this.attX, this.y + this.attY, 80, 0, 2 * Math.PI);
-        // this.ctx.fill();
-        // this.ctx.restore();
-
         if (this.clock.dt % 3 == 0) {
             if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
                 this.frames.current += 62
@@ -161,15 +147,13 @@ export class PlayerClass extends GameObject {
     }
     drawPlayerInfo(s) {
         if (this.attDir == 4) {
-            this.x2 = 100
+            this.x2 = 100;
         } else if (this.attDir == 2){
-            this.x2 = 0
-        }
+            this.x2 = 0;
+        };
         for (let i = 5; i > 0; i--) {
             this.ctx.save();
-            if (!(5 - this.lives < i)) {
-                this.ctx.filter = `brightness(0)`;
-            }
+            if (!(5 - this.lives < i)) {this.ctx.filter = `brightness(0)`;}
             this.ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.3 * i) - 55);
             this.ctx.restore();
         }

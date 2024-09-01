@@ -183,7 +183,7 @@ function animate() {
   spawnEnemies();
   moveFadeBox();
 
-  // gameDebugger();
+  gameDebugger();
 }
 
 function handleBg() {
@@ -223,6 +223,19 @@ function gameDebugger() {
   ctx.stroke();
   ctx.restore();
 
+  ctx.save()
+  ctx.fillStyle = "rgba(255,0,0,0.5)";
+  ctx.beginPath();
+  ctx.rect(canvas.width / 2 - player.i.width / 250, canvas.height / 2 - player.i.height * 0.65, player.i.width / 150, 70);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.fillStyle = "rgba(255,0,0,0.5)";
+  ctx.beginPath();
+  ctx.arc(player.x + player.attX, player.y + player.attY, 80, 0, 2 * Math.PI);
+  ctx.fill();
+  ctx.restore();
 }
 
 function gameCollisionDetection(e) {
@@ -257,9 +270,9 @@ function gameCollisionDetection(e) {
 
   if (player.alive) {
     if (rectRectCollision(
-      player.x - player.i.width / 336,
-      player.y - player.i.height / 2,
-      player.i.width / 168,
+      player.x - player.i.width / 250,
+      player.y - player.i.height * 0.65,
+      player.i.width / 150,
       50,
       e.x,
       e.y,
@@ -277,10 +290,10 @@ function handleEnemies() {
     if (e.alive) {
       e.draw();
       e.move(player)
-      if (keys.r && lastKey == 'r'  && bgx > -229) { e.x -= player.movementSpeed; }
+      if (keys.r && lastKey == 'r' && bgx > -229) { e.x -= player.movementSpeed; }
       else if (keys.l && lastKey == 'l' && bgx < -27) { e.x += player.movementSpeed; }
       else if (keys.d && lastKey == 'd' && bgy > -114) { e.y -= player.movementSpeed; }
-      else if (keys.u && lastKey == 'u'  && bgy < -22) { e.y += player.movementSpeed; }
+      else if (keys.u && lastKey == 'u' && bgy < -22) { e.y += player.movementSpeed; }
       gameCollisionDetection(e)
     };
 
