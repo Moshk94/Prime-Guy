@@ -206,6 +206,17 @@ export class EnemyClass extends GameObject {
     }
     damage(player) {
         if (!this.damaged) {
+            console.log(player.attDir)
+            if(player.attDir == 3){
+                this.y+= 75
+            } else if(player.attDir == 1){
+                this.y-=75
+            } else if(player.attDir == 2){
+                this.x+=75
+            } else if(player.attDir == 4){
+                this.x-=75
+            }
+
             this.damaged = 1;
             ['+', '-', '×', '÷',]
 
