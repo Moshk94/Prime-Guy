@@ -490,7 +490,7 @@ function beginGame() {
     enemyArray1.push(new EnemyClass(ctx, x, y, e))
   })
 
-  trueScore+=enemyArray1.length();
+  trueScore+=enemyArray1.length;
 }
 
 function spawnEnemies() {
