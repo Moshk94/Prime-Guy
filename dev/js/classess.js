@@ -172,8 +172,8 @@ export class EnemyClass extends GameObject {
 
         this.speedOffset = getRandomArbitrary(-0.05, 0.1);
         this.movementSpeed = s;
-        this.knockBackX = s;
-        this.knockBackY = s;
+        this.knockBackX = 0;
+        this.knockBackY = 0;
         this.width = 100;
         this.height = this.width;
         this.y = y;
@@ -218,7 +218,6 @@ export class EnemyClass extends GameObject {
 
         }
         this.ctx.restore();
-        console.log(this.clock.dmgClock)
         if(this.clock.dmgClock >= 1 && this.clock.dmgClock < 10){
             this.clock.dmgClock++;
         } else if(this.clock.dmgClock >= 10) {
@@ -265,10 +264,11 @@ export class EnemyClass extends GameObject {
         if (this.lives !== 13) {
             let followPlayer = 1
             if (!player.alive) { followPlayer = -1 }
+            console.log(this.knockBackY)
             if (this.y + this.height / 2 > player.y + player.height) {
-                this.y -= this.movementSpeed * followPlayer + this.knockBackY;
+                this.y -=( this.movementSpeed * followPlayer) + this.knockBackY;
             } else if (this.y + this.height / 2 < player.y) {
-                this.y += this.movementSpeed * followPlayer  + this.knockBackY;
+                this.y += (this.movementSpeed * followPlayer)  + this.knockBackY;
             };
 
             if (this.x + this.width / 2 > canvas.width / 2) {
