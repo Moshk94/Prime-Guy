@@ -108,9 +108,8 @@ export class PlayerClass extends GameObject {
             this.attY = 0
             this.attX = -80
         } else {
-            this.ctx.scale(2, 2);
+            this.ctx.scale(2, 2);}
 
-        }
         if (this.clock.dmgClock > 0 && this.clock.dmgClock < 15 && this.alive) {
             this.ctx.filter = `brightness(20)`;
         }
@@ -195,7 +194,12 @@ export class EnemyClass extends GameObject {
 
         this.ctx.save();
         this.ctx.filter = `drop-shadow(-9px 100px 20px #000000)`;
-        this.ctx.fillStyle = "darkred";
+        if(this.damaged){
+            this.ctx.fillStyle = "yellow";
+        } else {
+            this.ctx.fillStyle = "darkred";
+        };
+        
         this.ctx.fillText(txt, this.x, this.y + this.height);
         this.ctx.restore();
     }
@@ -206,7 +210,6 @@ export class EnemyClass extends GameObject {
     }
     damage(player) {
         if (!this.damaged) {
-            console.log(player.attDir)
             if(player.attDir == 3){
                 this.y+= 75
             } else if(player.attDir == 1){
