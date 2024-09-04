@@ -35,7 +35,7 @@ let trueScore = 0
 let hiScore = 0
 let someTruthy;
 let increment = 100;
-let sumOfCurrentHealth = 0;
+let sumOfAlive = 0;
 
 let enemyHealtPool1 = []
 
@@ -275,7 +275,7 @@ function gameCollisionDetection(e) {
       e.y,
       e.width,
       e.height
-    ) && !player.invincible && gameState == 1) {
+    ) && !player.invincible && gameState == 1 && e.lives != 13) {
       player.damagePlayer();
     };
   };
@@ -345,7 +345,7 @@ function drawUI() {
   let y = canvas.height * 0.25
 
   if (gameState == -4) {
-    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod",10);
+    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod", 10);
     let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
@@ -447,7 +447,7 @@ function drawUI() {
   }
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
-    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white",10);
+    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white", 10);
     drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.05, 50, "white");
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4 + globalOffsetX, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6 + globalOffsetY, 50, "black");
@@ -463,7 +463,7 @@ function drawUI() {
   }
 
   if (player.lives <= 0) {
-    drawText(ctx, "GAME OVER!", x, y, 100, "white",10);
+    drawText(ctx, "GAME OVER!", x, y, 100, "white", 10);
     drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
     keyBoardKeys[8].draw();
     keyBoardKeys[8].x = x - 130
@@ -511,7 +511,7 @@ function beginGame() {
       }
       s = enemyArray1[0].movementSpeed - 0.4
     }
-   
+
     enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i], s));
   }
 
@@ -520,15 +520,12 @@ function beginGame() {
 
 function spawnEnemies() {
   if (gameState == 1) {
-    sumOfCurrentHealth = 0
+    sumOfAlive = 0
 
     for (let i = 0; i < enemyArray1.length; i++) {
-      sumOfCurrentHealth += Math.abs(enemyArray1[i].lives - 13);
-
-      if (sumOfCurrentHealth > 0) { break }
+      sumOfAlive += enemyArray1[i].alive;
     }
-
-    if (sumOfCurrentHealth == 0) {
+    if (sumOfAlive == sumOfAlive >= enemyArray1.length || enemyArray1.length == 0) {
       increment += 10;
       enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
       enemyArray1 = [];

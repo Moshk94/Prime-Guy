@@ -108,7 +108,8 @@ export class PlayerClass extends GameObject {
             this.attY = 0
             this.attX = -80
         } else {
-            this.ctx.scale(2, 2);}
+            this.ctx.scale(2, 2);
+        }
 
         if (this.clock.dmgClock > 0 && this.clock.dmgClock < 15 && this.alive) {
             this.ctx.filter = `brightness(20)`;
@@ -147,12 +148,12 @@ export class PlayerClass extends GameObject {
     drawPlayerInfo(s) {
         if (this.attDir == 4) {
             this.x2 = 100;
-        } else if (this.attDir == 2){
+        } else if (this.attDir == 2) {
             this.x2 = 0;
         };
         for (let i = 5; i > 0; i--) {
             this.ctx.save();
-            if (!(5 - this.lives < i)) {this.ctx.filter = `brightness(0)`;}
+            if (!(5 - this.lives < i)) { this.ctx.filter = `brightness(0)`; }
             this.ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.3 * i) - 55);
             this.ctx.restore();
         }
@@ -171,49 +172,77 @@ export class EnemyClass extends GameObject {
 
         this.speedOffset = getRandomArbitrary(-0.05, 0.1);
         this.movementSpeed = s;
+        this.knockBackX = s;
+        this.knockBackY = s;
         this.width = 100;
         this.height = this.width;
         this.y = y;
         this.x = x;
-        this.lives = h
+        this.lives =  h
         this.damaged = 0;
         this.alive = 1;
         this.remainder = 0;
         this.angle = 0
+        this.ySin = 0;
+        this.opac = 1
     };
     draw() {
-        if (this.lives == 13) { this.alive = 0; }
         this.ctx.save();
+
         this.ctx.font = `100px q`
         let txt = this.lives;
-        let fM = this.ctx.measureText(txt)
+        let fM = this.ctx.measureText(txt);
         this.width = fM.width - (100 / 10);
         this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
-
-        this.ctx.save();
-        this.ctx.filter = `drop-shadow(-9px 100px 20px #000000)`;
-        if(this.damaged){
-            this.ctx.fillStyle = "yellow";
+        if (this.lives == 13) {
+            this.ySin += 10
+            this.opac -= 0.05
+            if (this.ySin < 200) {
+                this.ctx.fillStyle = `rgba(255, 255, 0, ${this.opac})`;
+                this.ctx.fillText(1, this.x + 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
+                this.ctx.fillText(3, this.x + this.width / 2 - 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
+            } else if (this.ySin >= 200) {
+                this.alive = 0;
+            }
         } else {
-            this.ctx.fillStyle = "darkred";
-        };
-        
-        this.ctx.fillText(txt, this.x, this.y + this.height);
+
+
+            if (this.damaged) {
+                this.ctx.fillStyle = "yellow";
+            } else {
+                this.ctx.fillStyle = "darkred";
+            };
+
+
+            this.ctx.fillText(txt, this.x, this.y + this.height);
+
+        }
         this.ctx.restore();
+        console.log(this.clock.dmgClock)
+        if(this.clock.dmgClock >= 1 && this.clock.dmgClock < 10){
+            this.clock.dmgClock++;
+        } else if(this.clock.dmgClock >= 10) {
+            this.clock.dmgClock = 0
+            this.knockBackX = 0;
+            this.knockBackY = 0;
+        }
     }
     damage(player) {
         if (!this.damaged) {
-            if(player.attDir == 3){
-                this.y+= 75
-            } else if(player.attDir == 1){
-                this.y-=75
-            } else if(player.attDir == 2){
-                this.x+=75
-            } else if(player.attDir == 4){
-                this.x-=75
+            if(this.lives != 13){
+                if (player.attDir == 3) {
+                    this.knockBackY = -10
+                } else if (player.attDir == 1) {
+                    this.knockBackY = -10
+                } else if (player.attDir == 2) {
+                    this.knockBackX = -10
+                } else if (player.attDir == 4) {
+                    this.knockBackX = -10
+                }
             }
 
             this.damaged = 1;
+            this.clock.dmgClock++;
             ['+', '-', '×', '÷',]
 
             if (player.currentFunction == 0) {
@@ -233,18 +262,21 @@ export class EnemyClass extends GameObject {
         }
     }
     move(player) {
-        let followPlayer = 1
-        if (!player.alive) { followPlayer = -1 }
-        if (this.y + this.height / 2 > player.y + player.height) {
-            this.y -= this.movementSpeed * followPlayer;
-        } else if (this.y + this.height / 2 < player.y) {
-            this.y += this.movementSpeed * followPlayer;
-        };
+        if (this.lives !== 13) {
+            let followPlayer = 1
+            if (!player.alive) { followPlayer = -1 }
+            if (this.y + this.height / 2 > player.y + player.height) {
+                this.y -= this.movementSpeed * followPlayer + this.knockBackY;
+            } else if (this.y + this.height / 2 < player.y) {
+                this.y += this.movementSpeed * followPlayer  + this.knockBackY;
+            };
 
-        if (this.x + this.width / 2 > canvas.width / 2) {
-            this.x -= this.movementSpeed * followPlayer;
-        } else if (this.x + this.width / 2 < player.x) {
-            this.x += this.movementSpeed * followPlayer;
-        };
+            if (this.x + this.width / 2 > canvas.width / 2) {
+                this.x -= this.movementSpeed * followPlayer  + this.knockBackX;
+            } else if (this.x + this.width / 2 < player.x) {
+                this.x += this.movementSpeed * followPlayer   + this.knockBackX;
+            };
+
+        }
     }
 }
