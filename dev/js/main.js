@@ -6,6 +6,8 @@ import playerSpriteSrc from '/img/p.png';
 import bgSrc from '/img/b.png'
 import heartSrc from '/img/h.png'
 
+const ctx = document.getElementById('canvas').getContext("2d");
+resizeCanvas();
 const playerSprites = new Image()
 playerSprites.src = playerSpriteSrc;
 
@@ -14,19 +16,23 @@ heartSprite.src = heartSrc;
 
 const bg = new Image()
 bg.src = bgSrc;
+let bgx, bgy, player;
 
-const ctx = document.getElementById('canvas').getContext("2d");
-resizeCanvas();
+bg.onload = () => {
+  bgx = -bg.width / 2;
+  bgy = -bg.height / 2;
+  player = new PlayerClass(ctx, playerSprites);
+  ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
+  animate();
+}
+
 const SCALE = 10
 
-let bgx = -bg.width / 2;
-let bgy = -bg.height / 2;
-ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
+
 let globalOffsetX = 0;
 let globalOffsetY = 0;
 
 let lastKey = ''
-let player = new PlayerClass(ctx, playerSprites);
 let fadeBox = new GameObject(ctx);
 let enemyArray1 = [];
 
@@ -156,8 +162,6 @@ window.addEventListener('keyup', (e) => {
     }
   }
 });
-
-animate();
 
 function animate() {
   requestAnimationFrame(animate);
