@@ -44,7 +44,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = 1
+let gameState = 0
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -261,7 +261,7 @@ function gameCollisionDetection(e) {
   };
 
   if (e.remainder != 0) {
-    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder, (Math.max(0.05, e.movementSpeed-0.1))));
+    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder, (Math.max(0.05, e.movementSpeed - 0.1))));
     e.remainder = 0;
   };
 
@@ -330,6 +330,10 @@ function resetGame() {
   increment = 100;
   keyBoardKeys[7].pressed = 0;
   enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
+  bgx = -bg.width / 2;
+  bgy = -bg.height / 2;
+  globalOffsetY = 0;
+  globalOffsetX = 0;
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
     fadeBox.width = -50
@@ -443,10 +447,10 @@ function drawUI() {
   }
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
-    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2, canvas.height * 0.25, 100, "white");
+    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white");
     drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.05, 50, "white");
 
-    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6, 50, "black");
+    drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4 + globalOffsetX, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6 + globalOffsetY, 50, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -454,8 +458,8 @@ function drawUI() {
     keyBoardKeys[7].height = 50
     ctx.restore();
 
-    keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width
-    keyBoardKeys[7].y = canvas.height * 0.70
+    keyBoardKeys[7].x = canvas.width / 2 - keyBoardKeys[7].width + globalOffsetX
+    keyBoardKeys[7].y = canvas.height * 0.70 + globalOffsetY
   }
 
   if (player.lives <= 0) {
@@ -475,7 +479,7 @@ function drawUI() {
 
 function beginGame() {
   for (let i = 0; i < 2; i++) {
-    let s = getRandomArbitrary(0.6,1.1)
+    let s = getRandomArbitrary(0.6, 1.1)
     let xRand = getRandomInt(0, canvas.width);
     let yRand = getRandomInt(0, canvas.height);
     let x;
@@ -507,7 +511,7 @@ function beginGame() {
       }
       s = enemyArray1[0].movementSpeed - 0.4
     }
-    enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i],s));
+    enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i], s));
   }
 
   trueScore += enemyArray1.length;
