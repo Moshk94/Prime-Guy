@@ -206,7 +206,7 @@ export class EnemyClass extends GameObject {
             }
         } else {
 
-
+            this.ctx.filter = `drop-shadow(-9px 100px 20px #000000)`;
             if (this.damaged) {
                 this.ctx.fillStyle = "yellow";
             } else {
