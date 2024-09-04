@@ -17,7 +17,8 @@ module.exports = {
     build: {
         outDir: '../dist',
         emptyOutDir: true,
-        polyfillModulePreload: false
+        polyfillModulePreload: false,
+        assetsInlineLimit: '6000'
     },
     base: './',
     plugins: [cleanHTML()]

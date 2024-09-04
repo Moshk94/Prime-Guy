@@ -1,5 +1,5 @@
 import { PlayerClass, EnemyClass, GameObject } from "./classess";
-import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue, getRandomInt } from "./helperFunctions";
+import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue, getRandomInt, getRandomArbitrary } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 import playerSpriteSrc from '/img/p.png';
@@ -19,8 +19,9 @@ const ctx = document.getElementById('canvas').getContext("2d");
 resizeCanvas();
 const SCALE = 10
 
-let bgx = -bg.width / 2
-let bgy = -bg.height / 2
+let bgx = -bg.width / 2;
+let bgy = -bg.height / 2;
+ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
 let globalOffsetX = 0;
 let globalOffsetY = 0;
 
@@ -35,7 +36,6 @@ let hiScore = 0
 let someTruthy;
 let increment = 100;
 let sumOfCurrentHealth = 0;
-// (max 4, 13, no max - increment)
 
 let enemyHealtPool1 = [1]
 
@@ -44,7 +44,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = 2
+let gameState = 1
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -181,6 +181,10 @@ function animate() {
   spawnEnemies();
   moveFadeBox();
 
+  if (keys.r && lastKey == 'r' && bgx > -229) { globalOffsetX -= player.movementSpeed; }
+  else if (keys.l && lastKey == 'l' && bgx < -27) { globalOffsetX += player.movementSpeed; }
+  else if (keys.d && lastKey == 'd' && bgy > -114) { globalOffsetY -= player.movementSpeed; }
+  else if (keys.u && lastKey == 'u' && bgy < -22) { globalOffsetY += player.movementSpeed; };
   //gameDebugger();
 }
 
@@ -257,7 +261,7 @@ function gameCollisionDetection(e) {
   };
 
   if (e.remainder != 0) {
-    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder));
+    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder, (Math.max(0.05, e.movementSpeed-0.1))));
     e.remainder = 0;
   };
 
@@ -400,9 +404,8 @@ function drawUI() {
   if (gameState == -2) {
     x = canvas.width / 2
     y = canvas.height * 0.25
-    let pressedKeys = [];
-    drawText(ctx, "GET THAT NUMBER TO 13!", x +globalOffsetX, y + globalOffsetY, 50, "black");
-    drawText(ctx, "USE                TO CHANGE YOUR ATTACK POWER", x -15, y + 60, 35, "black");
+    drawText(ctx, "GET THAT NUMBER TO 13!", x + globalOffsetX, y + globalOffsetY, 50, "black");
+    drawText(ctx, "USE                TO CHANGE YOUR ATTACK POWER", x - 15 + globalOffsetX, y + 60 + globalOffsetY, 35, "black");
 
     for (let i = 4; i < 7; i++) {
       ctx.save();
@@ -471,11 +474,13 @@ function drawUI() {
 }
 
 function beginGame() {
-  enemyHealtPool1.forEach(e => {
+  for (let i = 0; i < 2; i++) {
+    let s = getRandomArbitrary(0.6,1.1)
     let xRand = getRandomInt(0, canvas.width);
     let yRand = getRandomInt(0, canvas.height);
     let x;
     let y;
+
     if (xRand > canvas.width / 2) {
       x = canvas.width + 50
     } else {
@@ -487,10 +492,25 @@ function beginGame() {
     } else {
       y = 0 - 50
     }
-    enemyArray1.push(new EnemyClass(ctx, x, y, e))
-  })
 
-  trueScore+=enemyArray1.length;
+    if (i == 1) {
+      if (enemyArray1[0].x > canvas.width) {
+        x = -50
+      } else {
+        x = canvas.width
+      }
+
+      if (enemyArray1[0].y > canvas.height) {
+        y = -50
+      } else {
+        y = canvas.height
+      }
+      s = enemyArray1[0].movementSpeed - 0.4
+    }
+    enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i],s));
+  }
+
+  trueScore += enemyArray1.length;
 }
 
 function spawnEnemies() {
@@ -505,10 +525,10 @@ function spawnEnemies() {
 
     if (sumOfCurrentHealth == 0) {
       increment += 10;
-      enemyHealtPool1 = randomNumbersWithFixedSum(1, 14, increment);
+      enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
       enemyArray1 = [];
-      
-      if(score < trueScore){
+
+      if (score < trueScore) {
         score = trueScore;
       }
       beginGame();

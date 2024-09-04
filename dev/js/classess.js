@@ -167,11 +167,11 @@ export class PlayerClass extends GameObject {
 }
 
 export class EnemyClass extends GameObject {
-    constructor(ctx, x, y, h) {
+    constructor(ctx, x, y, h, s = 0.1) {
         super(ctx);
 
         this.speedOffset = getRandomArbitrary(-0.05, 0.1);
-        this.movementSpeed = getRandomArbitrary(0.1, 1) + this.speedOffset;
+        this.movementSpeed = s;
         this.width = 100;
         this.height = this.width;
         this.y = y;
