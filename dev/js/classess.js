@@ -182,7 +182,6 @@ export class EnemyClass extends GameObject {
         this.angle = 0
     };
     draw() {
-        this.hover();
         if (this.lives == 13) { this.alive = 0; }
         this.ctx.save();
         this.ctx.font = `100px q`
@@ -201,11 +200,6 @@ export class EnemyClass extends GameObject {
         
         this.ctx.fillText(txt, this.x, this.y + this.height);
         this.ctx.restore();
-    }
-    hover() {
-        this.angle++
-        this.hoverOffset = 2 * Math.sin(rads(this.angle))
-        this.y -= this.hoverOffset
     }
     damage(player) {
         if (!this.damaged) {
