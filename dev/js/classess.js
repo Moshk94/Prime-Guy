@@ -26,7 +26,7 @@ export class PlayerClass extends GameObject {
         this.y = canvas.height / 2
         this.movementSpeed = 5;
         this.attacking = 0;
-        this.playerMathFunction = ['+', '-', '×', '÷'];
+        this.playerMathFunction = ['+', '-', '÷'];
         this.currentFunction = 0;
         this.attDir = 3
         this.attX = 0;
@@ -138,7 +138,7 @@ export class PlayerClass extends GameObject {
                     this.frames.current = this.frames.min
                     if (this.attacking) {
                         this.attacking = 0;
-                        if (this.currentFunction >= 3) { this.currentFunction = -1 }
+                        if (this.currentFunction >= 2) { this.currentFunction = -1 }
                         this.currentFunction++;
                     }
                 }
@@ -214,8 +214,6 @@ export class EnemyClass extends GameObject {
             } else if (player.currentFunction == 1) {
                 this.lives -= player.power
             } else if (player.currentFunction == 2) {
-                this.lives *= player.power
-            } else if (player.currentFunction == 3) {
                 if (this.lives % player.power == 0 || this.lives % player.power == -0) {
                     this.lives /= player.power
                 } else {
