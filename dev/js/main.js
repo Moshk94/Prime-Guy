@@ -1,5 +1,5 @@
 import { PlayerClass, EnemyClass, GameObject } from "./classess";
-import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, drawTextWithShadow, allTrue, getRandomInt, getRandomArbitrary } from "./helperFunctions";
+import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, allTrue, getRandomInt, getRandomArbitrary } from "./helperFunctions";
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 import playerSpriteSrc from '/img/p.png';
@@ -37,7 +37,7 @@ let someTruthy;
 let increment = 100;
 let sumOfCurrentHealth = 0;
 
-let enemyHealtPool1 = [1]
+let enemyHealtPool1 = []
 
 let globalClock = {
   dt: 0,
@@ -128,7 +128,7 @@ window.addEventListener('keyup', (e) => {
     if (e.key === ' ') {
       if (gameState == 0) {
         gameState = 1
-        beginGame();
+        spawnEnemies();
       }
       if (player.attDir == 3) {
         player.frames.current = 62 * 22
@@ -345,7 +345,7 @@ function drawUI() {
   let y = canvas.height * 0.25
 
   if (gameState == -4) {
-    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod");
+    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod",10);
     let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
@@ -447,7 +447,7 @@ function drawUI() {
   }
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
-    drawTextWithShadow(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white");
+    drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white",10);
     drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.05, 50, "white");
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4 + globalOffsetX, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6 + globalOffsetY, 50, "black");
@@ -463,7 +463,7 @@ function drawUI() {
   }
 
   if (player.lives <= 0) {
-    drawTextWithShadow(ctx, "GAME OVER!", x, y, 100, "white");
+    drawText(ctx, "GAME OVER!", x, y, 100, "white",10);
     drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
     keyBoardKeys[8].draw();
     keyBoardKeys[8].x = x - 130
@@ -511,6 +511,7 @@ function beginGame() {
       }
       s = enemyArray1[0].movementSpeed - 0.4
     }
+   
     enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i], s));
   }
 

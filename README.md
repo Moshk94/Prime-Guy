@@ -1,7 +1,7 @@
 
 ___
 ### Credits
-[Player Sprites by penusbmic](https://penusbmic.itch.io/)
+[Player & Background Sprites by penusbmic](https://penusbmic.itch.io/)
 
 [Colision detection code by Jeff Thompson](https://www.jeffreythompson.org/collision-detection/)
 

@@ -44,19 +44,15 @@ export function rectRectCollision( r1x,  r1y,  r1w,  r1h,  r2x,  r2y,  r2w,  r2h
 return false;
 }
 
-export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333') {
+export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333', s = 0) {
     ctx.save();
+    ctx.filter = `drop-shadow(0px ${s}px 0px #000000)`;
     ctx.font = `${fontsize}px p`
     ctx.textAlign = 'center';
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
     ctx.fillText(text, centerX, centerY);
     ctx.restore();
-};
-
-export function drawTextWithShadow(ctx, text, centerX, centerY, fontsize, color = 'white') {
-    drawText(ctx, text, centerX, centerY + fontsize / 10, fontsize, 'black');
-    drawText(ctx, text, centerX, centerY, fontsize, color);
 };
 
 export const clamp = (a, min = 0, max = 1) => Math.min(max, Math.max(min, a));

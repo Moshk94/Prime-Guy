@@ -184,12 +184,11 @@ export class EnemyClass extends GameObject {
     draw() {
         this.hover();
         if (this.lives == 13) { this.alive = 0; }
-        let fontSize = 100;
         this.ctx.save();
-        this.ctx.font = `${fontSize}px q`
+        this.ctx.font = `100px q`
         let txt = this.lives;
         let fM = this.ctx.measureText(txt)
-        this.width = fM.width - (fontSize / 10);
+        this.width = fM.width - (100 / 10);
         this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
 
         this.ctx.save();
@@ -205,7 +204,7 @@ export class EnemyClass extends GameObject {
     }
     hover() {
         this.angle++
-        this.hoverOffset = 0.2 * Math.sin(rads(this.angle))
+        this.hoverOffset = 2 * Math.sin(rads(this.angle))
         this.y -= this.hoverOffset
     }
     damage(player) {
