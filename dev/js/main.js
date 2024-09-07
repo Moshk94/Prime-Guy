@@ -586,7 +586,6 @@ function drawUI() {
 
   if (gameState == -4) {
     drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "goldenrod", 10);
-    let x = canvas.width / 2
     let y = canvas.height * 0.75
     let pressedKeys = [];
     drawText(ctx, "PRESS                 TO MOVE", x + globalOffsetX, y + + globalOffsetY, 50, "black");
@@ -646,8 +645,6 @@ function drawUI() {
   }
 
   if (gameState == -2) {
-    x = canvas.width / 2
-    y = canvas.height * 0.25
     drawText(ctx, "GET THAT NUMBER TO 13!", x + globalOffsetX, y + globalOffsetY, 50, "black");
     drawText(ctx, "USE                TO CHANGE YOUR ATTACK POWER", x - 15 + globalOffsetX, y + 60 + globalOffsetY, 35, "black");
 
@@ -703,11 +700,11 @@ function drawUI() {
   }
 
   if (player.lives <= 0) {
-    drawText(ctx, "GAME OVER!", x, y, 100, "white", 10);
-    drawText(ctx, "    TO QUIT", x + 45, y + 105, 50, "black");
+    drawText(ctx, "GAME OVER!", x, y - 90, 100, "white", 10);
+    drawText(ctx, "    TO QUIT", x + 45, y + 15, 50, "black");
     keyBoardKeys[8].draw();
     keyBoardKeys[8].x = x - 130
-    keyBoardKeys[8].y = y + 100 - 25
+    keyBoardKeys[8].y = y - 15
     keyBoardKeys[8].width = 90
     keyBoardKeys[8].height = 50
   }
