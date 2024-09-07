@@ -1,10 +1,284 @@
-import { PlayerClass, EnemyClass, GameObject } from "./classess";
-import { circleRectCollision, drawText, rectRectCollision, randomNumbersWithFixedSum, allTrue, getRandomInt, getRandomArbitrary } from "./helperFunctions";
+import { circleRectCollision, 
+  rads, 
+  drawText, 
+  rectRectCollision, 
+  randomNumbersWithFixedSum, 
+  allTrue, 
+  getRandomInt,
+  getRandomArbitrary 
+} from "./helperFunctions";
+
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
 import playerSpriteSrc from '/img/p.png';
-import bgSrc from '/img/b.png'
-import heartSrc from '/img/h.png'
+import bgSrc from '/img/b.png';
+import heartSrc from '/img/h.png';
+
+class GameObject {
+  constructor() {
+    this.clock = {
+      attClock: 0,
+      dmgClock: 0,
+      dt: 0,
+      s: 0,
+    };
+  };
+};
+
+class PlayerClass extends GameObject {
+  constructor(i) {
+    super();
+    this.x = canvas.width / 2
+    this.y = canvas.height / 2
+    this.movementSpeed = 5;
+    this.attacking = 0;
+    this.operation = ['+', '-', '÷'];
+    this.index = 0;
+    this.attDir = 3
+    this.attX = 0;
+    this.attY = 0;
+    this.invincible = 0
+    this.lives = 5;
+    this.power = 1;
+    this.i = i;
+    this.height = this.i.height * 0.85
+    this.width = this.i.width / 18
+    this.frames = {
+      current: 62 * 81,
+      max: 62 * 12
+    }
+    this.x2 = 0;
+  };
+
+  draw() {
+    this.clock.dt++
+    if (this.lives > 0) { this.alive = 1 } else { this.alive = 0 };
+    if (this.attacking && this.clock.attClock < 1) {
+      this.clock.attClock++
+    } else {
+      this.clock.attClock = 0
+    }
+
+    if (this.invincible) {
+      this.clock.dmgClock++
+    }
+    if (this.clock.dmgClock > 90) {
+      this.clock.dmgClock = 0
+      this.invincible = 0
+    }
+
+    ctx.save();
+    if (!this.alive) {
+      this.frames.min = 62 * 81
+      this.frames.max = 62 * 93
+    } else if (this.attDir == 3) {
+      if (this.attacking) {
+        this.frames.max = 62 * 28
+        this.attY = 50
+        this.attX = 0
+      } else if (this.moving) {
+        this.frames.min = 62 * 14
+        this.frames.max = 62 * 21
+      } else {
+        this.frames.min = 0
+        this.frames.max = 62 * 12
+      }
+    } else if (this.attDir == 2 || this.attDir == 4) {
+      if (this.attacking) {
+        this.frames.max = 62 * 52
+        this.attY = 0
+        this.attX = 80
+      } else if (this.moving) {
+        this.frames.min = 62 * 41
+        this.frames.max = 62 * 47
+      } else {
+        this.frames.min = 62 * 29
+        this.frames.max = 62 * 39
+      }
+    } else if (this.attDir == 1) {
+      if (this.attacking) {
+        this.frames.max = 62 * 79
+        this.attY = -50
+        this.attX = 0
+      } else if (this.moving) {
+        this.frames.min = 62 * 66
+        this.frames.max = 62 * 73
+      } else {
+        this.frames.min = 62 * 54
+        this.frames.max = 62 * 64
+      }
+    } if (this.attDir == 4) {
+      ctx.translate(canvas.width, 0);
+
+      ctx.scale(-2, 2);
+      this.attY = 0
+      this.attX = -80
+    } else {
+      ctx.scale(2, 2);
+    }
+
+    if (this.clock.dmgClock > 0 && this.clock.dmgClock < 15 && this.alive) {
+      ctx.filter = `brightness(20)`;
+    }
+    if (this.clock.dmgClock >= 15 && this.invincible && this.alive) {
+      ctx.filter = `opacity(0.5)`;
+    }
+    ctx.drawImage(
+      this.i
+      , this.frames.current
+      , 0
+      , this.i.width / 96
+      , this.i.height
+      , canvas.width / 4 - 36
+      , canvas.height / 4 - 54
+      , this.i.width / 48
+      , this.i.height * 2);
+
+    ctx.restore();
+
+    if (this.clock.dt % 3 == 0) {
+      if (this.frames.current >= this.frames.min && this.frames.current < this.frames.max) {
+        this.frames.current += 62
+      } else {
+        if (this.alive) {
+          this.frames.current = this.frames.min
+          if (this.attacking) {
+            this.attacking = 0;
+            this.index++;
+          };
+        };
+      };
+    };
+  };
+
+  drawPlayerInfo(s) {
+    if (this.attDir == 4) {
+      this.x2 = 100;
+    } else if (this.attDir == 2) {
+      this.x2 = 0;
+    };
+    for (let i = 5; i > 0; i--) {
+      ctx.save();
+      if (!(5 - this.lives < i)) { ctx.filter = `brightness(0)`; }
+      ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.3 * i) - 55);
+      ctx.restore();
+    }
+    drawText(ctx, `${this.operation[this.index % this.operation.length]}${this.power}`, this.x * 0.995, this.y - this.height * 1.3, 25, 'white');
+  }
+  damagePlayer() {
+    this.invincible = 1;
+    this.lives--
+    if (this.lives <= 0) { this.frames.current = 62 * 81 }
+  }
+}
+
+class EnemyClass extends GameObject {
+  constructor(x, y, h, s = 0.1) {
+    super(ctx);
+    this.speedOffset = getRandomArbitrary(-0.05, 0.1);
+    this.movementSpeed = s;
+    this.knockBackX = 0;
+    this.knockBackY = 0;
+    this.width = 100;
+    this.height = this.width;
+    this.y = y;
+    this.x = x;
+    this.lives = h
+    this.damaged = 0;
+    this.alive = 1;
+    this.remainder = 0;
+    this.angle = 0
+    this.ySin = 0;
+    this.opac = 1
+  };
+  draw() {
+    ctx.save();
+    ctx.font = `100px q`
+    let txt = this.lives;
+    let fM = ctx.measureText(txt);
+    this.width = fM.width - (100 / 10);
+    this.height = fM.actualBoundingBoxAscent + fM.actualBoundingBoxDescent;
+    if (this.lives == 13) {
+      this.ySin += 10
+      this.opac -= 0.05
+      if (this.ySin < 200) {
+        ctx.fillStyle = `rgba(255, 255, 0, ${this.opac})`;
+        ctx.fillText(1, this.x + 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
+        ctx.fillText(3, this.x + this.width / 2 - 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
+      } else if (this.ySin >= 200) {
+        if(gameState == 1){score++}
+        this.alive = 0;
+      }
+    } else {
+
+      ctx.filter = `drop-shadow(-9px 100px 20px #000000)`;
+      if (this.damaged) {
+        ctx.fillStyle = "yellow";
+      } else {
+        ctx.fillStyle = "darkred";
+      };
+
+      ctx.fillText(txt, this.x, this.y + this.height);
+    }
+    ctx.restore();
+    if (this.clock.dmgClock >= 1 && this.clock.dmgClock < 10) {
+      this.clock.dmgClock++;
+    } else if (this.clock.dmgClock >= 10) {
+      this.clock.dmgClock = 0
+      this.knockBackX = 0;
+      this.knockBackY = 0;
+    }
+  }
+  damageEnemy() {
+    if (!this.damaged) {
+      if (this.lives != 13) {
+        if (player.attDir == 3) {
+          this.knockBackY = -10
+        } else if (player.attDir == 1) {
+          this.knockBackY = -10
+        } else if (player.attDir == 2) {
+          this.knockBackX = -10
+        } else if (player.attDir == 4) {
+          this.knockBackX = -10
+        }
+      }
+
+      this.damaged = 1;
+      this.clock.dmgClock++;
+      if (player.index % player.operation.length == 0) {
+        this.lives += player.power;
+      } else if (player.index % player.operation.length == 1) {
+        this.lives -= player.power;
+      } else if (player.index % player.operation.length == 2) {
+        if (this.lives % player.power == 0 || this.lives % player.power == -0) {
+          this.lives /= player.power
+        } else {
+          if (!this.special) {
+            this.lives = Math.floor(this.lives / player.power)
+            this.remainder = this.lives % player.power
+          }
+        }
+      }
+    }
+  }
+  move(player) {
+    if (this.lives !== 13) {
+      let followPlayer = 1
+      if (!player.alive) { followPlayer = -1 }
+      if (this.y + this.height / 2 > player.y + player.height) {
+        this.y -= (this.movementSpeed * followPlayer) + this.knockBackY;
+      } else if (this.y + this.height / 2 < player.y) {
+        this.y += (this.movementSpeed * followPlayer) + this.knockBackY;
+      };
+
+      if (this.x + this.width / 2 > canvas.width / 2) {
+        this.x -= this.movementSpeed * followPlayer + this.knockBackX;
+      } else if (this.x + this.width / 2 < player.x) {
+        this.x += this.movementSpeed * followPlayer + this.knockBackX;
+      };
+    }
+  }
+}
 
 const ctx = document.getElementById('canvas').getContext("2d");
 resizeCanvas();
@@ -21,7 +295,7 @@ let bgx, bgy, player;
 bg.onload = () => {
   bgx = -bg.width / 2;
   bgy = -bg.height / 2;
-  player = new PlayerClass(ctx, playerSprites);
+  player = new PlayerClass(playerSprites);
   ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
   animate();
 }
@@ -40,7 +314,7 @@ let score = 0
 let trueScore = 0
 let hiScore = 0
 let someTruthy;
-let increment = 100;
+let increment = 10;
 let sumOfAlive = 0;
 
 let enemyHealtPool1 = []
@@ -50,7 +324,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = 0
+let gameState = -4
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -136,15 +410,16 @@ window.addEventListener('keyup', (e) => {
         gameState = 1
         spawnEnemies();
       }
-      if (player.attDir == 3) {
-        player.frames.current = 62 * 22
-
-      } else if (player.attDir == 2 || player.attDir == 4) {
-        player.frames.current = 62 * 47
-      } else if (player.attDir == 1) {
-        player.frames.current = 62 * 74
-      }
-      player.attacking = 1
+      if (!player.attacking) {
+        if (player.attDir == 3) {
+          player.frames.current = 62 * 22
+        } else if (player.attDir == 2 || player.attDir == 4) {
+          player.frames.current = 62 * 47
+        } else if (player.attDir == 1) {
+          player.frames.current = 62 * 74
+        }
+      };
+      player.attacking = 1;
     }
 
     if (e.key === '1') {
@@ -253,11 +528,8 @@ function gameCollisionDetection(e) {
     e.y,
     e.width,
     e.height)) {
-    e.damage(player)
+    e.damageEnemy()
     keyBoardKeys[7].pressed = 1
-    if (!e.alive && gameState == 1) {
-      score++
-    }
   }
 
   if (!player.attacking) {
@@ -265,7 +537,7 @@ function gameCollisionDetection(e) {
   };
 
   if (e.remainder != 0) {
-    enemyArray1.push(new EnemyClass(ctx, e.x, e.y + e.height, e.remainder, (Math.max(0.05, e.movementSpeed - 0.1))));
+    enemyArray1.push(new EnemyClass(e.x, e.y + e.height, e.remainder, (Math.max(0.05, e.movementSpeed - 0.1))));
     e.remainder = 0;
   };
 
@@ -331,7 +603,7 @@ function resetGame() {
   player.lives = 5;
   hiScore = Math.max(score, hiScore);
   score = 0;
-  increment = 100;
+  increment = 10000;
   keyBoardKeys[7].pressed = 0;
   enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
   bgx = -bg.width / 2;
@@ -398,7 +670,7 @@ function drawUI() {
     keyBoardKeys[7].y = y + 95 + globalOffsetY
 
     if (enemyArray1.length == 0) {
-      enemyArray1.push(new EnemyClass(ctx, canvas.width / 2, canvas.height * 0.75, 0))
+      enemyArray1.push(new EnemyClass(canvas.width / 2, canvas.height * 0.75, 0))
       enemyArray1[0].movementSpeed = 0.1;
       enemyArray1[0].special = 1;
     }
@@ -516,7 +788,7 @@ function beginGame() {
       s = enemyArray1[0].movementSpeed - 0.4
     }
 
-    enemyArray1.push(new EnemyClass(ctx, x, y, enemyHealtPool1[i], s));
+    enemyArray1.push(new EnemyClass(x, y, enemyHealtPool1[i], s));
   }
 
   trueScore += enemyArray1.length;
