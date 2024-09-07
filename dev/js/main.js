@@ -1,11 +1,12 @@
-import { circleRectCollision, 
-  rads, 
-  drawText, 
-  rectRectCollision, 
-  randomNumbersWithFixedSum, 
-  allTrue, 
+import {
+  circleRectCollision,
+  rads,
+  drawText,
+  rectRectCollision,
+  randomNumbersWithFixedSum,
+  allTrue,
   getRandomInt,
-  getRandomArbitrary 
+  getRandomArbitrary
 } from "./helperFunctions";
 
 import { KeyBoardSprite } from "./KeyboardKeySprites";
@@ -16,12 +17,19 @@ import heartSrc from '/img/h.png';
 
 class GameObject {
   constructor() {
+    this.x = -50;
+    this.width = 0;
     this.clock = {
       attClock: 0,
       dmgClock: 0,
       dt: 0,
       s: 0,
     };
+  };
+  draw() {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height)
+    ctx.fill();
   };
 };
 
@@ -38,7 +46,7 @@ class PlayerClass extends GameObject {
     this.attX = 0;
     this.attY = 0;
     this.invincible = 0
-    this.lives = 5;
+    this.lives = 0;
     this.power = 1;
     this.i = i;
     this.height = this.i.height * 0.85
@@ -50,7 +58,8 @@ class PlayerClass extends GameObject {
     this.x2 = 0;
   };
 
-  draw() {
+  draw(s) {
+    this.drawPlayerInfo(s);
     this.clock.dt++
     if (this.lives > 0) { this.alive = 1 } else { this.alive = 0 };
     if (this.attacking && this.clock.attClock < 1) {
@@ -206,7 +215,7 @@ class EnemyClass extends GameObject {
         ctx.fillText(1, this.x + 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
         ctx.fillText(3, this.x + this.width / 2 - 10 * Math.cos(rads(this.ySin)), this.y + this.height - 50 * Math.sin(rads(this.ySin)));
       } else if (this.ySin >= 200) {
-        if(gameState == 1){score++}
+        if (gameState == 1) { score++ }
         this.alive = 0;
       }
     } else {
@@ -261,9 +270,9 @@ class EnemyClass extends GameObject {
       }
     }
   }
-  move(player) {
+  move() {
     if (this.lives !== 13) {
-      let followPlayer = 1
+      let followPlayer = 1;
       if (!player.alive) { followPlayer = -1 }
       if (this.y + this.height / 2 > player.y + player.height) {
         this.y -= (this.movementSpeed * followPlayer) + this.knockBackY;
@@ -300,14 +309,13 @@ bg.onload = () => {
   animate();
 }
 
-const SCALE = 10
-
+const SCALE = 10;
 
 let globalOffsetX = 0;
 let globalOffsetY = 0;
 
 let lastKey = ''
-let fadeBox = new GameObject(ctx);
+let fadeBox = new GameObject();
 let enemyArray1 = [];
 
 let score = 0
@@ -324,7 +332,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = -4
+let gameState = 50
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -451,73 +459,29 @@ function animate() {
   }
 
 
+
   handleBg();
-  player.draw();
-  player.drawPlayerInfo(heartSprite)
+  player.draw(heartSprite);
   other();
   handleEnemies();
   drawUI();
   spawnEnemies();
-  moveFadeBox();
-
-  if (keys.r && lastKey == 'r' && bgx > -229) { globalOffsetX -= player.movementSpeed; }
-  else if (keys.l && lastKey == 'l' && bgx < -27) { globalOffsetX += player.movementSpeed; }
-  else if (keys.d && lastKey == 'd' && bgy > -114) { globalOffsetY -= player.movementSpeed; }
-  else if (keys.u && lastKey == 'u' && bgy < -22) { globalOffsetY += player.movementSpeed; };
-  //gameDebugger();
+  moveFadeBox();  
+  boundries();
 }
 
 function handleBg() {
   ctx.save();
-  ctx.scale(SCALE, SCALE)
-  ctx.imageSmoothingEnabled = false;
+  ctx.scale(SCALE, SCALE);
   ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
   ctx.restore();
-
-  if (keys.r && lastKey == 'r' && bgx > -229) { bgx -= player.movementSpeed / SCALE; }
-  else if (keys.l && lastKey == 'l' && bgx < -27) { bgx += player.movementSpeed / SCALE; }
-  else if (keys.d && lastKey == 'd' && bgy > -114) { bgy -= player.movementSpeed / SCALE; }
-  else if (keys.u && lastKey == 'u' && bgy < -22) { bgy += player.movementSpeed / SCALE; };
 };
 
 function other() {
   someTruthy = Object.values(keys).some(val => val === 1);
-  if (someTruthy) {
-    player.moving = 1
-  } else {
-    player.moving = 0
-  };
+  player.moving = 0
+  if (someTruthy) { player.moving = 1 }
 };
-
-function gameDebugger() {
-  ctx.save();
-  ctx.strokeStyle = "yellow";
-  ctx.moveTo(-5, canvas.height / 2)
-  ctx.lineTo(canvas.width + 5, canvas.height / 2)
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save();
-  ctx.strokeStyle = "yellow";
-  ctx.moveTo(canvas.width / 2, -5)
-  ctx.lineTo(canvas.width / 2, canvas.height + 5)
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.save()
-  ctx.fillStyle = "rgba(255,0,0,0.5)";
-  ctx.beginPath();
-  ctx.rect(canvas.width / 2 - player.i.width / 250, canvas.height / 2 - player.i.height * 0.65, player.i.width / 150, 70);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.save();
-  ctx.fillStyle = "rgba(255,0,0,0.5)";
-  ctx.beginPath();
-  ctx.arc(player.x + player.attX, player.y + player.attY, 80, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.restore();
-}
 
 function gameCollisionDetection(e) {
   if (player.attacking && circleRectCollision(
@@ -561,7 +525,7 @@ function handleEnemies() {
   enemyArray1.forEach(e => {
     if (e.alive) {
       e.draw();
-      e.move(player)
+      e.move()
       if (keys.r && lastKey == 'r' && bgx > -229) { e.x -= player.movementSpeed; }
       else if (keys.l && lastKey == 'l' && bgx < -27) { e.x += player.movementSpeed; }
       else if (keys.d && lastKey == 'd' && bgy > -114) { e.y -= player.movementSpeed; }
@@ -658,7 +622,7 @@ function drawUI() {
 
     drawText(ctx, "SEE THAT '0' OVER THERE?", x + globalOffsetX, y + globalOffsetY, 50, "black");
     drawText(ctx, "ATTACK IT BY PRESSING", x + globalOffsetX, y + 55 + globalOffsetY, 50, "black");
-    drawText(ctx, "YOUR ATTACK TYPE CHANGES AFTER EVERY SWING", x - 15 + globalOffsetX, y + 175 + globalOffsetY, 20, "black");
+    drawText(ctx, "YOUR ATTACK OPERATION CHANGES AFTER EVERY SWING", x - 15 + globalOffsetX, y + 175 + globalOffsetY, 20, "black");
 
     ctx.save();
     keyBoardKeys[7].draw();
@@ -812,4 +776,24 @@ function spawnEnemies() {
       beginGame();
     }
   }
+}
+
+
+function boundries(){
+  if (keys.r && lastKey == 'r' && bgx > -229) { 
+    globalOffsetX -= player.movementSpeed; 
+    bgx -= player.movementSpeed / SCALE;  }
+  else if (keys.l && lastKey == 'l' && bgx < -27) { 
+    globalOffsetX += player.movementSpeed; 
+    bgx += player.movementSpeed / SCALE;
+  
+  }
+  else if (keys.d && lastKey == 'd' && bgy > -114) { 
+    globalOffsetY -= player.movementSpeed; 
+    bgy -= player.movementSpeed / SCALE;
+  }
+  else if (keys.u && lastKey == 'u' && bgy < -22) { 
+    globalOffsetY += player.movementSpeed; 
+    bgy += player.movementSpeed / SCALE; 
+  };
 }

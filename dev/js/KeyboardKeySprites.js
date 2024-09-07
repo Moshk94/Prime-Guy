@@ -17,10 +17,10 @@ export class KeyBoardSprite {
             textOffset = this.height - (this.height * pressedOffset)
         }
 
-        // Background
-        this.ctx.beginPath();
-        this.ctx.fillStyle = '#333333';
         this.ctx.lineWidth = 3;
+
+        //Background
+        this.ctx.beginPath();
         this.ctx.roundRect(this.x, this.y, this.width, this.height, [cornerRadius]);
         this.ctx.fill();
         this.ctx.stroke();
@@ -31,7 +31,7 @@ export class KeyBoardSprite {
         this.ctx.roundRect(this.x, this.y, this.width, this.height * pressedOffset, [cornerRadius]);
         this.ctx.fill();
         this.ctx.stroke();
-
+        
         // Text
         if (this.letter.includes('Arrow')) {
             let yOffSet = 0
