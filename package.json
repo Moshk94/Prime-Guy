@@ -1,11 +1,14 @@
 {
-    "name": "canvas-template-repository",
+    "name": "prime-guy",
+    "typle": "module",
+    "main": "src/js/main.js",
     "scripts": {
-        "dev": "vite ./dev",
+        "dev": "vite",
         "test": "vite ./test",
         "build": "vite build"
     },
     "devDependencies": {
-        "vite": "3.0.7"
+        "js13k-vite-plugins": "^0.3.4",
+        "vite": "^5.0.0"
     }
 }

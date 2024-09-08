@@ -11,10 +11,10 @@ import {
 
 import { KeyBoardSprite } from "./KeyboardKeySprites";
 
-import playerSpriteSrc from '/img/p.png';
-import bgSrc from '/img/b.png';
-import heartSrc from '/img/h.png';
-import buffsrc from '/img/c.png';
+import playerSpriteSrc from "../img/p.png";
+import bgSrc from "../img/b.png";
+import heartSrc from "../img/h.png";
+import buffsrc from "../img/c.png";
 
 class GameObject {
   constructor() {
