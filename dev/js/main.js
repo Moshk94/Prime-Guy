@@ -48,7 +48,8 @@ class PlayerClass extends GameObject {
     this.attY = 0;
     this.invincible = 0
     this.lives = 50;
-    this.power = 1;
+    this.pArray = [1, 2, 5];
+    this.power = this.pArray[0];
     this.i = i;
     this.height = this.i.height * 0.85
     this.width = this.i.width / 18
@@ -303,7 +304,7 @@ class buffsSprite extends GameObject {
     ctx.scale(2, 2);
     ctx.drawImage(
       this.s
-      ,this.frames.current
+      , this.frames.current
       , 0
       , this.s.width / 23
       , this.s.height
@@ -312,7 +313,7 @@ class buffsSprite extends GameObject {
       , this.s.width / 11.5
       , this.s.height * 2);
     if (this.clock.dt % 3 == 0) {
-      this.frames.current+=18
+      this.frames.current += 18
     }
     this.clock.dt++
     ctx.restore();
@@ -367,7 +368,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = 50
+let gameState = -4
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -451,7 +452,7 @@ window.addEventListener('keyup', (e) => {
     if (e.key === ' ') {
       if (gameState == 0) {
         gameState = 1
-        spawnEnemies();
+        resetGame();
       }
       if (!player.attacking) {
         if (player.attDir == 3) {
@@ -465,18 +466,11 @@ window.addEventListener('keyup', (e) => {
       player.attacking = 1;
     }
 
-    if (e.key === '1') {
-      player.power = 1;
+    if (e.key === '1' || e.key === '2' || e.key === '3') {
+      player.power = player.pArray[e.key - 1];
       buff.frames.current = 0
     }
-    if (e.key === '2') {
-      player.power = 2;
-      buff.frames.current = 0
-    }
-    if (e.key === '3') {
-      player.power = 5;
-      buff.frames.current = 0
-    }
+
   } else {
     if (e.key == "Escape") {
       gameState = 2
@@ -494,8 +488,7 @@ function animate() {
   globalClock.dt++
   if (globalClock.dt % 60 == 0) {
     globalClock.s++
-  }
-
+  };
 
   handleBg();
   player.draw(heartSprite);
@@ -605,13 +598,15 @@ function resetGame() {
   player.lives = 5;
   hiScore = Math.max(score, hiScore);
   score = 0;
-  increment = 10000;
+  increment = 10;
   keyBoardKeys[7].pressed = 0;
   enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
-  bgx = -bg.width / 2;
-  bgy = -bg.height / 2;
-  globalOffsetY = 0;
-  globalOffsetX = 0;
+  if(gameState != 1){
+    bgx = -bg.width / 2;
+    bgy = -bg.height / 2;
+    globalOffsetY = 0;
+    globalOffsetX = 0;
+  }
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
     fadeBox.width = -50
@@ -801,7 +796,7 @@ function spawnEnemies() {
       sumOfAlive += enemyArray1[i].alive;
     }
     if (sumOfAlive == sumOfAlive >= enemyArray1.length || enemyArray1.length == 0) {
-      increment += 10;
+      increment += 50;
       enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
       enemyArray1 = [];
 
