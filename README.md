@@ -1,10 +1,30 @@
+Press:
+
+`1`, `2` or `3` to change attack power
+`SPACE` to attack
+
+The attack operation changes after every swing
+
+
+```mermaid
+flowchart LR
+
+A["+"]--> B["-"] --> C["÷"] --> A
+
+```
 
 ___
+
 ### Credits
-[Player & Background Sprites by penusbmic](https://penusbmic.itch.io/)
 
-[Colision detection code by Jeff Thompson](https://www.jeffreythompson.org/collision-detection/)
+Player & Background Sprites by [penusbmic](https://penusbmic.itch.io/)
 
-[Neoletters (UI Fonts) by Oren Watson](http://www.orenwatson.be/)
+Colision detection code by [Jeff Thompson](https://www.jeffreythompson.org/collision-detection/)
 
-[04b_30 (Number Fonts) by 04 (Yuji Oshimoto)](http://www.04.jp.org/)
+UI Fonts (Neoletters) by [Oren Watson](http://www.orenwatson.be/)*
+
+Number Fonts (04b_30) by [04 (Yuji Oshimoto)](http://www.04.jp.org/)*
+
+*The fonts have been stripped down to only include necessary characters using font forge. You can find the full versions of on Dafont on [Here](https://www.dafont.com/04b-30.font) and [Here](https://www.dafont.com/neoletters.font)
+
+

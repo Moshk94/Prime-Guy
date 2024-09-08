@@ -6,7 +6,7 @@
 }
 @font-face {
     font-family: "q";
-    src: url("q.woff2") format("woff2");
+    src: url("q.woff") format("woff");
     font-weight: normal;
     font-style: normal;
 }
