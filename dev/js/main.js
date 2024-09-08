@@ -354,9 +354,8 @@ let lastKey = '';
 let fadeBox = new GameObject();
 let enemyArray1 = [];
 
-let score = 0
-let trueScore = 0
-let hiScore = 0
+let score = 0;
+let hiScore = 0;
 let someTruthy;
 let increment = 10;
 let sumOfAlive = 0;
@@ -784,8 +783,6 @@ function beginGame() {
 
     enemyArray1.push(new EnemyClass(x, y, enemyHealtPool1[i], s));
   }
-
-  trueScore += enemyArray1.length;
 }
 
 function spawnEnemies() {
@@ -799,10 +796,6 @@ function spawnEnemies() {
       increment += 50;
       enemyHealtPool1 = randomNumbersWithFixedSum(2, 13, increment);
       enemyArray1 = [];
-
-      if (score < trueScore) {
-        score = trueScore;
-      }
       beginGame();
     }
   }
