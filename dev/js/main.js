@@ -14,6 +14,7 @@ import { KeyBoardSprite } from "./KeyboardKeySprites";
 import playerSpriteSrc from '/img/p.png';
 import bgSrc from '/img/b.png';
 import heartSrc from '/img/h.png';
+import buffsrc from '/img/c.png';
 
 class GameObject {
   constructor() {
@@ -46,7 +47,7 @@ class PlayerClass extends GameObject {
     this.attX = 0;
     this.attY = 0;
     this.invincible = 0
-    this.lives = 0;
+    this.lives = 50;
     this.power = 1;
     this.i = i;
     this.height = this.i.height * 0.85
@@ -287,6 +288,35 @@ class EnemyClass extends GameObject {
       };
     }
   }
+};
+
+class buffsSprite extends GameObject {
+  constructor(s) {
+    super();
+    this.s = s
+    this.frames = {
+      current: 0,
+    }
+  }
+  draw() {
+    ctx.save();
+    ctx.scale(2, 2);
+    ctx.drawImage(
+      this.s
+      ,this.frames.current
+      , 0
+      , this.s.width / 23
+      , this.s.height
+      , canvas.width / 4 - 20
+      , canvas.height / 4 - 27
+      , this.s.width / 11.5
+      , this.s.height * 2);
+    if (this.clock.dt % 3 == 0) {
+      this.frames.current+=18
+    }
+    this.clock.dt++
+    ctx.restore();
+  }
 }
 
 const ctx = document.getElementById('canvas').getContext("2d");
@@ -297,14 +327,19 @@ playerSprites.src = playerSpriteSrc;
 const heartSprite = new Image()
 heartSprite.src = heartSrc;
 
+const buffSprite = new Image()
+buffSprite.src = buffsrc;
+
+
 const bg = new Image()
 bg.src = bgSrc;
-let bgx, bgy, player;
+let bgx, bgy, player, buff;
 
 bg.onload = () => {
   bgx = -bg.width / 2;
   bgy = -bg.height / 2;
   player = new PlayerClass(playerSprites);
+  buff = new buffsSprite(buffSprite)
   ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
   animate();
 }
@@ -314,7 +349,7 @@ const SCALE = 10;
 let globalOffsetX = 0;
 let globalOffsetY = 0;
 
-let lastKey = ''
+let lastKey = '';
 let fadeBox = new GameObject();
 let enemyArray1 = [];
 
@@ -432,12 +467,15 @@ window.addEventListener('keyup', (e) => {
 
     if (e.key === '1') {
       player.power = 1;
+      buff.frames.current = 0
     }
     if (e.key === '2') {
       player.power = 2;
+      buff.frames.current = 0
     }
     if (e.key === '3') {
       player.power = 5;
+      buff.frames.current = 0
     }
   } else {
     if (e.key == "Escape") {
@@ -459,14 +497,14 @@ function animate() {
   }
 
 
-
   handleBg();
   player.draw(heartSprite);
+  buff.draw();
   other();
   handleEnemies();
   drawUI();
   spawnEnemies();
-  moveFadeBox();  
+  moveFadeBox();
   boundries();
 }
 
@@ -703,10 +741,10 @@ function drawUI() {
     drawText(ctx, "GAME OVER!", x, y - 90, 100, "white", 10);
     drawText(ctx, "    TO QUIT", x + 45, y + 15, 50, "black");
     keyBoardKeys[8].draw();
-    keyBoardKeys[8].x = x - 130
-    keyBoardKeys[8].y = y - 15
-    keyBoardKeys[8].width = 90
-    keyBoardKeys[8].height = 50
+    keyBoardKeys[8].x = x - 130;
+    keyBoardKeys[8].y = y - 15;
+    keyBoardKeys[8].width = 90;
+    keyBoardKeys[8].height = 50;
   }
 
   if (gameState == 1) {
@@ -776,21 +814,22 @@ function spawnEnemies() {
 }
 
 
-function boundries(){
-  if (keys.r && lastKey == 'r' && bgx > -229) { 
-    globalOffsetX -= player.movementSpeed; 
-    bgx -= player.movementSpeed / SCALE;  }
-  else if (keys.l && lastKey == 'l' && bgx < -27) { 
-    globalOffsetX += player.movementSpeed; 
-    bgx += player.movementSpeed / SCALE;
-  
+function boundries() {
+  if (keys.r && lastKey == 'r' && bgx > -229) {
+    globalOffsetX -= player.movementSpeed;
+    bgx -= player.movementSpeed / SCALE;
   }
-  else if (keys.d && lastKey == 'd' && bgy > -114) { 
-    globalOffsetY -= player.movementSpeed; 
+  else if (keys.l && lastKey == 'l' && bgx < -27) {
+    globalOffsetX += player.movementSpeed;
+    bgx += player.movementSpeed / SCALE;
+
+  }
+  else if (keys.d && lastKey == 'd' && bgy > -114) {
+    globalOffsetY -= player.movementSpeed;
     bgy -= player.movementSpeed / SCALE;
   }
-  else if (keys.u && lastKey == 'u' && bgy < -22) { 
-    globalOffsetY += player.movementSpeed; 
-    bgy += player.movementSpeed / SCALE; 
+  else if (keys.u && lastKey == 'u' && bgy < -22) {
+    globalOffsetY += player.movementSpeed;
+    bgy += player.movementSpeed / SCALE;
   };
 }
