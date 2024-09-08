@@ -334,7 +334,7 @@ buffSprite.src = buffsrc;
 
 const bg = new Image()
 bg.src = bgSrc;
-let bgx, bgy, player, buff;
+let bgx, bgy, player, buff, someTruthy;
 
 bg.onload = () => {
   bgx = -bg.width / 2;
@@ -356,7 +356,6 @@ let enemyArray1 = [];
 
 let score = 0;
 let hiScore = 0;
-let someTruthy;
 let increment = 10;
 let sumOfAlive = 0;
 
