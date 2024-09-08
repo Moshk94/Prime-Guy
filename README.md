@@ -6,12 +6,7 @@ Press:
 The attack operation changes after every swing
 
 
-```mermaid
-flowchart LR
-
-A["+"]--> B["-"] --> C["÷"] --> A
-
-```
+Add --> Subtract --> Divide --> Add --> ...
 
 ___
 
