@@ -47,7 +47,7 @@ class PlayerClass extends GameObject {
     this.attX = 0;
     this.attY = 0;
     this.invincible = 0
-    this.lives = 50;
+    this.lives = 5;
     this.pArray = [1, 2, 5];
     this.power = this.pArray[0];
     this.i = i;
