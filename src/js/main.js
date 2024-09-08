@@ -84,45 +84,44 @@ class PlayerClass extends GameObject {
       this.frames.max = 62 * 93
     } else if (this.attDir == 3) {
       if (this.attacking) {
-        this.frames.max = 62 * 28
+        this.frames.max = 62 * 26
         this.attY = 50
         this.attX = 0
       } else if (this.moving) {
-        this.frames.min = 62 * 14
-        this.frames.max = 62 * 21
+        this.frames.min = 62 * 12
+        this.frames.max = 62 * 19
       } else {
         this.frames.min = 0
-        this.frames.max = 62 * 12
+        this.frames.max = 62 * 11
       }
     } else if (this.attDir == 2 || this.attDir == 4) {
       if (this.attacking) {
-        this.frames.max = 62 * 52
+        this.frames.max = 62 * 49
         this.attY = 0
         this.attX = 80
       } else if (this.moving) {
-        this.frames.min = 62 * 41
-        this.frames.max = 62 * 47
+        this.frames.min = 62 * 36
+        this.frames.max = 62 * 43
       } else {
-        this.frames.min = 62 * 29
-        this.frames.max = 62 * 39
+        this.frames.min = 62 * 25
+        this.frames.max = 62 * 35
       }
     } else if (this.attDir == 1) {
       if (this.attacking) {
-        this.frames.max = 62 * 79
+        this.frames.max = 62 * 70
         this.attY = -50
         this.attX = 0
       } else if (this.moving) {
-        this.frames.min = 62 * 66
-        this.frames.max = 62 * 73
+        this.frames.min = 62 * 58
+        this.frames.max = 62 * 66
       } else {
-        this.frames.min = 62 * 54
-        this.frames.max = 62 * 64
+        this.frames.min = 62 * 49
+        this.frames.max = 62 * 57
       }
     } if (this.attDir == 4) {
       ctx.translate(canvas.width, 0);
 
       ctx.scale(-2, 2);
-      this.attY = 0
       this.attX = -80
     } else {
       ctx.scale(2, 2);
@@ -454,11 +453,11 @@ window.addEventListener('keyup', (e) => {
       }
       if (!player.attacking) {
         if (player.attDir == 3) {
-          player.frames.current = 62 * 22
+          player.frames.current = 62 * 21
         } else if (player.attDir == 2 || player.attDir == 4) {
-          player.frames.current = 62 * 47
+          player.frames.current = 62 * 42
         } else if (player.attDir == 1) {
-          player.frames.current = 62 * 74
+          player.frames.current = 62 * 66
         }
       };
       player.attacking = 1;
