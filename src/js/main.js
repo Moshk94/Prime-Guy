@@ -15,7 +15,7 @@ import playerSpriteSrc from "../img/p.png";
 import bgSrc from "../img/b.png";
 import heartSrc from "../img/h.png";
 import buffsrc from "../img/c.png";
-let gameState;
+
 class GameObject {
   constructor() {
     this.x = -50;
@@ -335,7 +335,7 @@ buffSprite.src = buffsrc;
 
 const bg = new Image()
 bg.src = bgSrc;
-let bgx, bgy, player, buff, someTruthy;
+let bgx, bgy, player, buff, someTruthy, hiScore, gameState;
 
 bg.onload = () => {
   bgx = -bg.width / 2;
@@ -344,9 +344,11 @@ bg.onload = () => {
   buff = new buffsSprite(buffSprite)
   ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
   if(localStorage.getItem("primeGuy")){
-    gameState = 0
+    gameState = 0;
+    hiScore = localStorage.getItem("primeGuy")
   }else {
-    gameState = -4
+    gameState = -4;
+    hiScore = 0;
   }
   animate();
 }
@@ -361,7 +363,6 @@ let fadeBox = new GameObject();
 let enemyArray1 = [];
 
 let score = 0;
-let hiScore =  localStorage.getItem("primeGuy");
 let increment = 10;
 let sumOfAlive = 0;
 
@@ -721,7 +722,8 @@ function drawUI() {
 
   if (gameState == 0 || fadeBox.width >= canvas.width) {
     drawText(ctx, "PRIME GUY", canvas.width / 2 + globalOffsetX, canvas.height * 0.25 + globalOffsetY, 100, "white", 10);
-    drawText(ctx, `HI-SCORE:${hiScore}`, 150, canvas.height * 0.05, 50, "white");
+
+    drawText(ctx, `HI-SCORE: ${hiScore}`, 10, canvas.height * 0.05, 50, "white",0,'');
 
     drawText(ctx, "TO BEGIN", canvas.width / 2 + keyBoardKeys[7].width * 0.4 + globalOffsetX, canvas.height * 0.70 + keyBoardKeys[7].height * 0.6 + globalOffsetY, 50, "black");
 
@@ -746,7 +748,7 @@ function drawUI() {
   }
 
   if (gameState == 1) {
-    drawText(ctx, `SCORE:${score}`, 100, canvas.height * 0.05, 50, "white");
+    drawText(ctx, `SCORE:${score}`, 10, canvas.height * 0.05, 50, "white",0,'');
   }
 }
 

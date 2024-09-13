@@ -44,11 +44,11 @@ export function rectRectCollision( r1x,  r1y,  r1w,  r1h,  r2x,  r2y,  r2w,  r2h
 return false;
 }
 
-export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333', s = 0) {
+export function drawText(ctx, text, centerX, centerY, fontsize, color = '#333', s = 0, a = 'center') {
     ctx.save();
     ctx.filter = `drop-shadow(0px ${s}px 0px #000000)`;
     ctx.font = `${fontsize}px p`
-    ctx.textAlign = 'center';
+    ctx.textAlign = a;
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
     ctx.fillText(text, centerX, centerY);
