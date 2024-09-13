@@ -15,7 +15,7 @@ import playerSpriteSrc from "../img/p.png";
 import bgSrc from "../img/b.png";
 import heartSrc from "../img/h.png";
 import buffsrc from "../img/c.png";
-
+let gameState;
 class GameObject {
   constructor() {
     this.x = -50;
@@ -47,7 +47,7 @@ class PlayerClass extends GameObject {
     this.attX = 0;
     this.attY = 0;
     this.invincible = 0
-    this.lives = 5;
+    this.lives = 3;
     this.pArray = [1, 2, 5];
     this.power = this.pArray[0];
     this.i = i;
@@ -80,8 +80,8 @@ class PlayerClass extends GameObject {
 
     ctx.save();
     if (!this.alive) {
-      this.frames.min = 62 * 81
-      this.frames.max = 62 * 93
+      this.frames.min = 62 * 72
+      this.frames.max = 62 * 91
     } else if (this.attDir == 3) {
       if (this.attacking) {
         this.frames.max = 62 * 26
@@ -167,10 +167,10 @@ class PlayerClass extends GameObject {
     } else if (this.attDir == 2) {
       this.x2 = 0;
     };
-    for (let i = 5; i > 0; i--) {
+    for (let i = 3; i > 0; i--) {
       ctx.save();
-      if (!(5 - this.lives < i)) { ctx.filter = `brightness(0)`; }
-      ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.3 * i) - 55);
+      if (!(3 - this.lives < i)) { ctx.filter = `brightness(0)`; }
+      ctx.drawImage(s, canvas.width / 2 - this.i.width / 96 + this.x2, canvas.height / 2 + (this.i.height * 0.4 * i) - 45);
       ctx.restore();
     }
     drawText(ctx, `${this.operation[this.index % this.operation.length]}${this.power}`, this.x * 0.995, this.y - this.height * 1.3, 25, 'white');
@@ -178,7 +178,9 @@ class PlayerClass extends GameObject {
   damagePlayer() {
     this.invincible = 1;
     this.lives--
-    if (this.lives <= 0) { this.frames.current = 62 * 81 }
+    if (this.lives <= 0) { 
+      this.frames.current = 62 * 72
+     }
   }
 }
 
@@ -341,6 +343,11 @@ bg.onload = () => {
   player = new PlayerClass(playerSprites);
   buff = new buffsSprite(buffSprite)
   ctx.drawImage(bg, canvas.width / 20 + bgx, canvas.height / 20 + bgy);
+  if(localStorage.getItem("primeGuy")){
+    gameState = 0
+  }else {
+    gameState = -4
+  }
   animate();
 }
 
@@ -354,7 +361,7 @@ let fadeBox = new GameObject();
 let enemyArray1 = [];
 
 let score = 0;
-let hiScore = 0;
+let hiScore =  localStorage.getItem("primeGuy");
 let increment = 10;
 let sumOfAlive = 0;
 
@@ -365,7 +372,7 @@ let globalClock = {
   s: 0,
 }
 
-let gameState = -4
+
 
 let keyBoardKeys = [
   new KeyBoardSprite(ctx, 'uArrow')
@@ -447,10 +454,7 @@ window.addEventListener('keyup', (e) => {
 
   if (player.alive) {
     if (e.key === ' ') {
-      if (gameState == 0) {
-        gameState = 1
-        resetGame();
-      }
+      if (gameState == 0) {gameState = 1;}
       if (!player.attacking) {
         if (player.attDir == 3) {
           player.frames.current = 62 * 21
@@ -592,8 +596,9 @@ function moveFadeBox() {
 }
 
 function resetGame() {
-  player.lives = 5;
+  player.lives = 3;
   hiScore = Math.max(score, hiScore);
+  localStorage.setItem("primeGuy", hiScore);
   score = 0;
   increment = 10;
   keyBoardKeys[7].pressed = 0;
@@ -604,6 +609,7 @@ function resetGame() {
     globalOffsetY = 0;
     globalOffsetX = 0;
   }
+
   if (fadeBox.x > canvas.width + 500) {
     gameState = 0;
     fadeBox.width = -50
